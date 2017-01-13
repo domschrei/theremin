@@ -6,6 +6,8 @@ Out of fun and interest, I built a [Theremin](https://en.wikipedia.org/wiki/Ther
 
 The hardware part is really easy – I used two "Tinkerforge" [ultrasonic distance sensors](https://www.tinkerforge.com/de/doc/Hardware/Bricklets/Distance_US.html#distance-us-bricklet) connected to a [master brick](https://www.tinkerforge.com/de/doc/Hardware/Bricks/Master_Brick.html), which directly communicates with the computer via USB. A simple USB triple foot switch turned out to be a great addition in order to trigger specific effects.
 
+![Blueprint of the setup](blueprint.png)
+
 I also developed a small framework for my Theremin to work. The application's tasks are
 
 * periodically polling sensor data;
