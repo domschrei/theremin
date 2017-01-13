@@ -31,7 +31,7 @@ A mini USB cable must connect the master brick with the computer.
 ### Software
 
 I am developing and executing the program on Linux only, so I will describe the process for Linux systems. 
-However, it should not really be a problem to get it running on other platforms, as everything is cross-platform.
+However, it should not really be a problem to get it running on other platforms, as all used tools and frameworks are cross-platform.
 
 Install the `gcc`, `make` and the `SDL2` library (the application uses the standard libraries and the _ttf_ libraries).
 
@@ -61,3 +61,17 @@ bash build.sh
 inside the application's root folder, which should let an executable called `theremin` appear.
 
 Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! The USB foot switch should be plug-and-play.
+
+## Using and tweaking
+
+To properly play the instrument, the sensors should be fastened and aligned. A 90 degree approach as shown in the blueprint works fine, with the volume sensor pointing upwards and the volume sensor pointing to the side. Of course, the sensors can be built into a little box just like I have done (I could have taken a much smaller box if it wasn't for the long connection cables I bought).
+
+Playing with pure hands is possible, but I experienced rather heavy noise and inaccuracies. To achieve really clear results, you can cut out two large circles of cupboard and glue some straps for your hands on it. The cupboard will reflect the ultrasonic waves very well.
+
+The foot switch has the following options:
+
+* Left pedal: The current frequency will be stored and will continue to play as long as the pedal stays pressed. You can move your hand and play two tones at once.
+* Central pedal: As long as the pedal is pressed, all tones will be played exactly one octave higher. This can be used to extend the pitch range of the instrument.
+* Right pedal: Each press switches the waveform which is being used for audio synthesis. I implemented some pretty random waveforms, with varying results.
+
+Internally, the foot switch just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch).
