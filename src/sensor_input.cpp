@@ -4,11 +4,6 @@
 #include "config.h"
 #include "sensor_input.h"
 
-#define HOST "localhost"
-#define PORT 4223
-#define UID_FREQUENCY "zmj" // UID of ultrasonic distance sensor #1
-#define UID_VOLUME "zn8" // UID of ultrasonic distance sensor #2
-
 /*
  * Connects to the sensor brick at localhost:4223 and to the
  * two expected distance sensors.

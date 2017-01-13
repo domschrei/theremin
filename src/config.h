@@ -2,6 +2,15 @@
 #define THEREMIN_CONFIG_H
 
 // // ****************************************
+// // SENSOR CONNECTIVITY
+// // ****************************************
+
+#define HOST "localhost"
+#define PORT 4223
+#define UID_FREQUENCY "zmj" // UID of ultrasonic distance sensor #1
+#define UID_VOLUME "zn8" // UID of ultrasonic distance sensor #2
+
+// // ****************************************
 // // CONSTANTS
 // // ****************************************
 
