@@ -66,6 +66,8 @@ To properly play the instrument, the sensors should be fastened and aligned. A 9
 
 Playing with pure hands is possible, but I experienced rather heavy noise and inaccuracies. To achieve really clear results, you can cut out two large circles of cupboard and glue some straps for your hands on it. The cupboard will reflect the ultrasonic waves very well.
 
+### Footswitch
+
 The foot switch has the following options:
 
 * Left pedal: The current frequency will be stored and will continue to play as long as the pedal stays pressed. You can move your hand and play two tones at once.
@@ -73,3 +75,11 @@ The foot switch has the following options:
 * Right pedal: Each press switches the waveform which is being used for audio synthesis. I implemented some pretty random waveforms, with varying results.
 
 Internally, the foot switch just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch).
+
+### Autotune modes
+
+The application supports some types of frequency aligning: `none`, `smooth` and `full`. You can change the type by pressing 1, 2 or 3 respectively, and they have the following effects:
+
+* `none`: The distance value of the sensor gets directly mapped to a frequency (in an exponential manner, such that moving the hand by the same amount on different height levels should yield roughly the same frequency interval).
+* `smooth`: Works like `none`, but adds a specific sine wave to the frequency such that the played tone gets "pushed" towards proper halftones, but in-between frequencies are possible nonetheless.
+* `full`: Every input frequency (the output of the `none` mode) will be aligned towards the proper halftone which has the minimal distance to the current frequency. This will make the output tone "jump" in between halftones but always produce perfectly aligned tones.
