@@ -70,8 +70,8 @@ Playing with pure hands is possible, but I experienced rather heavy noise and in
 
 The foot switch has the following options:
 
-* Left pedal: The current frequency will be stored and will continue to play as long as the pedal stays pressed. You can move your hand and play two tones at once.
-* Central pedal: As long as the pedal is pressed, all tones will be played exactly one octave higher. This can be used to extend the pitch range of the instrument.
+* Left pedal: The current frequency will be stored and will continue to play until the pedal gets pressed another time. You can move your hand and play two tones at once.
+* Central pedal: Until the pedal gets pressed another time, all tones will be played exactly one octave higher. This can be used to extend the pitch range of the instrument.
 * Right pedal: Each press switches the waveform which is being used for audio synthesis. I implemented some pretty random waveforms, with varying results.
 
 Internally, the foot switch just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch).

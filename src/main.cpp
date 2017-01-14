@@ -88,18 +88,18 @@ void main_loop(int *t) {
         if (input_keys[Input::INPUT_PRESS_A]) {
             if (!synth.is_secondary_frequency_active()) {
                 synth.set_secondary_frequency(synth.frequency);
+            } else {
+                synth.set_secondary_frequency(0.0);
             }
-        }
-        if (input_keys[Input::INPUT_RELEASE_A]) {
-            synth.set_secondary_frequency(0.0);
         }
         
         // Octaves the audio upwards, if pressed
         if (input_keys[Input::INPUT_PRESS_B]) {
-            synth.set_octave_offset(true);
-        }
-        if (input_keys[Input::INPUT_RELEASE_B]) {
-            synth.set_octave_offset(false);
+            if (!synth.is_octave_offset()) {
+                synth.set_octave_offset(true);
+            } else {
+                synth.set_octave_offset(false);
+            }
         }
         
         // Switches to the next waveform on each press

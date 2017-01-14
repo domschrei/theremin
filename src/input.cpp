@@ -24,23 +24,11 @@ bool* Input::poll_events()
          */
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_a) {
-                if (results[INPUT_RELEASE_A]) {
-                    results[INPUT_RELEASE_A] = false;
-                } else {
-                    results[INPUT_PRESS_A] = true;
-                }
+                results[INPUT_PRESS_A] = true;
             } else if (event.key.keysym.sym == SDLK_b) {
-                if (results[INPUT_RELEASE_B]) {
-                    results[INPUT_RELEASE_B] = false;
-                } else {
-                    results[INPUT_PRESS_B] = true;
-                }
+                results[INPUT_PRESS_B] = true;
             } else if (event.key.keysym.sym == SDLK_c) {
-                if (results[INPUT_RELEASE_C]) {
-                    results[INPUT_RELEASE_C] = false;
-                } else {
-                    results[INPUT_PRESS_C] = true;
-                }
+                results[INPUT_PRESS_C] = true;
             } else if (event.key.keysym.sym == SDLK_1) {
                 results[INPUT_PRESS_1] = true;
             } else if (event.key.keysym.sym == SDLK_2) {
@@ -51,23 +39,11 @@ bool* Input::poll_events()
             break;
         case SDL_KEYUP:
             if (event.key.keysym.sym == SDLK_a) {
-                if (results[INPUT_PRESS_A]) {
-                    results[INPUT_PRESS_A] = false;
-                } else {
-                    results[INPUT_RELEASE_A] = true;
-                }
+                results[INPUT_RELEASE_A] = true;
             } else if (event.key.keysym.sym == SDLK_b) {
-                if (results[INPUT_PRESS_B]) {
-                    results[INPUT_PRESS_B] = false;
-                } else {
-                    results[INPUT_RELEASE_B] = true;
-                }
+                results[INPUT_RELEASE_B] = true;
             } else if (event.key.keysym.sym == SDLK_c) {
-                if (results[INPUT_PRESS_C]) {
-                    results[INPUT_PRESS_C] = false;
-                } else {
-                    results[INPUT_RELEASE_C] = true;
-                }
+                results[INPUT_RELEASE_C] = true;
             } 
             break;
         case SDL_MOUSEMOTION:
