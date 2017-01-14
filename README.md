@@ -35,7 +35,9 @@ However, it should not really be a problem to get it running on other platforms,
 
 Install the `gcc`, `make` and the `SDL2` library (the application uses the standard libraries and the _ttf_ libraries).
 
-Download the C(++) bindings for Tinkerforge [from their homepage](https://www.tinkerforge.com/en/doc/Downloads.html#downloads-bindings-examples). Then create a `tinkerforge` directory at the same level as the `src` directory of the Theremin application. The `tinkerforge` directory has to contain the `source` directory which can be extracted from the downloaded ZIP.
+In order to fetch and build [the C(++) bindings for Tinkerforge](https://www.tinkerforge.com/en/doc/Downloads.html#downloads-bindings-examples):
+* You can just execute `bash get_tinkerforge.sh` (hereby, the script assumes that the commands `wget` and `unzip` are available). 
+* Alternatively, you can manually download them from [here](https://www.tinkerforge.com/en/doc/Downloads.html#downloads-bindings-examples) and extract them into a `tinkerforge` directory which needs to be at the same level as the `src` directory of the Theremin application. Inside the `tinkerforge/source` directory, execute the command `make` to compile the Tinkerforge bindings. 
 
 Also, install the daemon [brickd](https://www.tinkerforge.com/en/doc/Software/Brickd.html#brickd) which will enable communication between the computer and the brick, and the UI assistant [brickv](https://www.tinkerforge.com/en/doc/Software/Brickv.html#brickv) to initially fetch the UIDs of your sensors.
 
@@ -50,11 +52,7 @@ and open `brickv`. You should now be able to connect to your master brick and se
 ```
 (It does not matter which of the sensors is assigned to which constant, as you can just swap them.)
 
-Inside the `tinkerforge/source` directory, execute 
-```
-make
-```
-to compile the Tinkerforge bindings. You can now compile the Theremin application by executing
+You can now compile the Theremin application by executing
 ```
 bash build.sh
 ```
@@ -64,7 +62,7 @@ Now, with `brickd` still running, you can execute the application (`./theremin`)
 
 ## Using and tweaking
 
-To properly play the instrument, the sensors should be fastened and aligned. A 90 degree approach as shown in the blueprint works fine, with the volume sensor pointing upwards and the volume sensor pointing to the side. Of course, the sensors can be built into a little box just like I have done (I could have taken a much smaller box if it wasn't for the long connection cables I bought).
+To properly play the instrument, the sensors should be fastened and aligned. A 90 degree approach as shown in the blueprint works fine, with the frequency sensor pointing upwards and the volume sensor pointing to the side. Of course, the sensors can be built into a little box just like I have done (I could have taken a much smaller box if it wasn't for the long connection cables I bought).
 
 Playing with pure hands is possible, but I experienced rather heavy noise and inaccuracies. To achieve really clear results, you can cut out two large circles of cupboard and glue some straps for your hands on it. The cupboard will reflect the ultrasonic waves very well.
 
