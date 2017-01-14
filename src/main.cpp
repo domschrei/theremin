@@ -78,7 +78,7 @@ void main_loop(int *t) {
         exit(1);
     }
     
-    //if (*t % 50 == 0) {
+    if (*t % 50 == 0) {
         /*
         * Process key input (by keyboard or foot switch)
         */
@@ -106,7 +106,17 @@ void main_loop(int *t) {
         if (input_keys[Input::INPUT_PRESS_C]) {
             synth.switch_waveform();
         }
-    //}
+        
+        // Autotune settings
+        if (input_keys[Input::INPUT_PRESS_1]) {
+            synth.set_autotune_mode(AUTOTUNE_NONE);
+        } else if (input_keys[Input::INPUT_PRESS_2]) {
+            synth.set_autotune_mode(AUTOTUNE_SMOOTH);
+        } else if (input_keys[Input::INPUT_PRESS_3]) {
+            synth.set_autotune_mode(AUTOTUNE_FULL);
+            
+        }
+    }
     
     /*
      * Create a new audio sample corresponding to the current audio attributes

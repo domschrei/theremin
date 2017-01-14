@@ -9,8 +9,8 @@
  */
 bool* Input::poll_events()
 {    
-    static bool results[7];
-    for (int i = 0; i < 7; i++) {
+    static bool results[13];
+    for (int i = 0; i < 13; i++) {
         results[i] = false;
     }
     SDL_Event event;
@@ -41,6 +41,12 @@ bool* Input::poll_events()
                 } else {
                     results[INPUT_PRESS_C] = true;
                 }
+            } else if (event.key.keysym.sym == SDLK_1) {
+                results[INPUT_PRESS_1] = true;
+            } else if (event.key.keysym.sym == SDLK_2) {
+                results[INPUT_PRESS_2] = true;
+            } else if (event.key.keysym.sym == SDLK_3) {
+                results[INPUT_PRESS_3] = true;
             }
             break;
         case SDL_KEYUP:
@@ -123,12 +129,25 @@ void Input::refresh_surface(WaveSynth* synth) {
     waveText = waveText + WAVE_NAMES[synth->get_waveform()];
     waveText = waveText + "\"";
     textC = waveText.c_str();
+    // Autotune "pedal"
+    std::string autotuneIdx = std::to_string(synth->get_autotune_mode());
+    std::string autotuneText = std::string("Autotune: ") + autotuneIdx;
+    if (synth->get_autotune_mode() == AUTOTUNE_NONE) {
+        autotuneText += std::string(" (none)");
+    } else if (synth->get_autotune_mode() == AUTOTUNE_SMOOTH) {
+        autotuneText += std::string(" (smooth)");
+    } else if (synth->get_autotune_mode() == AUTOTUNE_FULL) {
+        autotuneText += std::string(" (full)");
+    }
+    const char* textAutotune = autotuneText.c_str();
     
     // Draw pedals
     draw_pedal(textA, 350, 30, synth->is_secondary_frequency_active());
     draw_pedal(textB, 350, 70, synth->is_octave_offset());
     draw_pedal(textC, 350, 110, lastWaveform != synth->get_waveform());
+    draw_pedal(textAutotune, 350, 160, lastAutotuneMode != synth->get_autotune_mode());
     lastWaveform = synth->get_waveform();
+    lastAutotuneMode = synth->get_autotune_mode();
     
     // Note display square
     SDL_Rect noteRect;
@@ -160,6 +179,20 @@ void Input::refresh_surface(WaveSynth* synth) {
     noteColor.g = 220 * (1 - error);
     noteColor.b = 255 * (1 - error);
     draw_text(NOTE_NAMES[noteIdx], 195, 90, noteColor, sansLarge);
+    
+    // Help text
+    const char* helpText1 = "Use the sensors to control";
+    const char* helpText2 = "frequency and volume.";
+    const char* helpText3 = "Press {a,b,c} to trigger";
+    const char* helpText4 = "the corresponding pedals.";
+    const char* helpText5 = "Press {1,2,3} to set an";
+    const char* helpText6 = "autotune mode.";
+    draw_text(helpText1, 350, 220, textColor, sans);
+    draw_text(helpText2, 350, 240, textColor, sans);
+    draw_text(helpText3, 350, 270, textColor, sans);
+    draw_text(helpText4, 350, 290, textColor, sans);
+    draw_text(helpText5, 350, 320, textColor, sans);
+    draw_text(helpText6, 350, 340, textColor, sans);
     
     // Publish rendered surface
     SDL_RenderPresent(renderer);

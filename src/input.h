@@ -27,6 +27,7 @@ private:
     void round_corners(SDL_Rect rect);
     
     int lastWaveform = WAVEFORM;
+    int lastAutotuneMode = AUTOTUNE_MODE;
     
 public:
     const static int INPUT_PRESS_A = 1;
@@ -35,6 +36,12 @@ public:
     const static int INPUT_RELEASE_A = 4;
     const static int INPUT_RELEASE_B = 5;
     const static int INPUT_RELEASE_C = 6;
+    const static int INPUT_PRESS_1 = 7;
+    const static int INPUT_PRESS_2 = 8;
+    const static int INPUT_PRESS_3 = 9;
+    const static int INPUT_RELEASE_1 = 10;
+    const static int INPUT_RELEASE_2 = 11;
+    const static int INPUT_RELEASE_3 = 12;
     
     void setup();
     bool* poll_events();

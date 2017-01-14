@@ -121,20 +121,41 @@ void WaveSynth::switch_waveform() {
  */
 void WaveSynth::align_frequency() {
     
-    if (frequency <= 0)
+    if (frequency <= 0 || autotuneMode == AUTOTUNE_NONE)
         return;
-    double CInLog = std::log(frequency) * M_LOG2E;
-    if (CInLog <= 0)
+    
+    double freqInLog = std::log(frequency) * M_LOG2E;
+    if (freqInLog <= 0)
         return;
+    double freqNew;
+    double toneQualitySine = std::sin(
+                (freqInLog - std::log(freqA) * M_LOG2E) 
+                * 2 * M_PI / ratioInLog
+            );
+    
+    if (autotuneMode == AUTOTUNE_SMOOTH) {
+            
+        freqNew = frequency - (1 / (ratioInLog * (2 * M_PI))) 
+            * toneQualitySine;
+            
+    } else if (autotuneMode == AUTOTUNE_FULL) {
         
-    double CNew = frequency - (1 / (ratioInLog * (2 * M_PI))) 
-        * std::sin(
-            (CInLog - std::log(freqA) * M_LOG2E) 
-            * 2 * M_PI / ratioInLog
-        );
-    // std::cerr << C << " -> " << CNew << std::endl;
+        double lowerFreq = NOTES[get_nearest_lower_note_index()];
+        double lowerFreqNorm = get_normalized_frequency(lowerFreq);
+        double upperFreq = lowerFreq * root12Of2;
+        double upperFreqNorm = get_normalized_frequency(upperFreq);
+        double currentFreqNorm = get_normalized_frequency(frequency);
         
-    frequency = CNew;
+        if (upperFreqNorm - currentFreqNorm > currentFreqNorm - lowerFreqNorm) {
+            // pitch to lower note
+            freqNew = lowerFreq;
+        } else {
+            // pitch to upper note
+            freqNew = upperFreq;
+        }
+    }
+    
+    frequency = freqNew;
 }
 
 /*
@@ -200,6 +221,10 @@ void WaveSynth::set_wave_offset(double t, WaveSmoothing* smoothing) {
     smoothing->lastWaveAddOffset = currentAddOffset;    
 }
 
+void WaveSynth::set_autotune_mode(int mode) {
+    autotuneMode = mode;
+}
+
 double WaveSynth::get_max_frequency() {
     return LOWEST_NOTE * std::pow(2, NUM_OCTAVES + 1);
 }
@@ -214,6 +239,10 @@ bool WaveSynth::is_octave_offset() {
 
 int WaveSynth::get_waveform() {
     return waveform;
+}
+
+int WaveSynth::get_autotune_mode() {
+    return autotuneMode;
 }
 
 /*

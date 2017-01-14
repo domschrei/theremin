@@ -112,6 +112,10 @@ static const char* NOTE_NAMES[] = {"c0","c#0","d0","d#0","e0","f0","f#0","g0","g
 
 #define NUM_NOTES (12 * 6 + 1)
 
+#define AUTOTUNE_NONE 1
+#define AUTOTUNE_SMOOTH 2
+#define AUTOTUNE_FULL 3
+
 // ****************************************
 // CONFIGURATION
 // ****************************************
@@ -130,6 +134,8 @@ static const char* NOTE_NAMES[] = {"c0","c#0","d0","d#0","e0","f0","f#0","g0","g
 #define AUDIO_BUFFER_SIZE 1024
 
 #define INPUT_DEVICE 2
+
+#define AUTOTUNE_MODE AUTOTUNE_SMOOTH
 
 #define SENSOR_POLLS_PER_SECOND 200
 #define SENSOR_FREQ_MIN_VALUE 100

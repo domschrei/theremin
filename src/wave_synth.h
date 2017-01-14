@@ -46,6 +46,8 @@ private:
     double secondaryFrequency;
     double secondaryVolumeShare = 0.4;
     
+    int autotuneMode = AUTOTUNE_MODE;
+    
 // methods
     
 public:
@@ -60,12 +62,14 @@ public:
     void switch_waveform();
     void set_secondary_frequency(double secondaryFrequency);
     bool is_secondary_frequency_active();
+    void set_autotune_mode(int mode);
     
     double get_max_frequency();
     double get_normalized_frequency(double f);
     int get_nearest_lower_note_index();
     bool is_octave_offset();
     int get_waveform();
+    int get_autotune_mode();
 
 private:
     void set_wave_offset(double t, WaveSmoothing* smoothing);
