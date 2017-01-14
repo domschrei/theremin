@@ -66,7 +66,7 @@ To properly play the instrument, the sensors should be fastened and aligned. A 9
 
 Playing with pure hands is possible, but I experienced rather heavy noise and inaccuracies. To achieve really clear results, you can cut out two large circles of cupboard and glue some straps for your hands on it. The cupboard will reflect the ultrasonic waves very well.
 
-### Footswitch
+### Foot switch
 
 The foot switch has the following options:
 
@@ -82,4 +82,4 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 * `none`: The distance value of the sensor gets directly mapped to a frequency (in an exponential manner, such that moving the hand by the same amount on different height levels should yield roughly the same frequency interval).
 * `smooth`: Works like `none`, but adds a specific sine wave to the frequency such that the played tone gets "pushed" towards proper halftones, but in-between frequencies are possible nonetheless.
-* `full`: Every input frequency (the output of the `none` mode) will be aligned towards the proper halftone which has the minimal distance to the current frequency. This will make the output tone "jump" in between halftones but always produce perfectly aligned tones.
+* `full`: Every input frequency (the output of the `none` mode) will be aligned towards the halftone which has the minimal distance to the current frequency. This will make the output tone "jump" in between halftones but always produce properly aligned tones.
