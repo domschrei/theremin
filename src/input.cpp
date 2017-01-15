@@ -59,31 +59,31 @@ bool* Input::poll_events()
 }
 
 void Input::refresh_surface(WaveSynth* synth) {
-
+    
     // White background
-    SDL_SetRenderDrawColor( renderer, 255, 255, 255, 255 );
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-
+    
     // "Volume" label
     SDL_Color textColor = {0, 0, 0, 255};
     draw_text("Volume", 30, window_h - 80, textColor, sans);
-    
+        
     // Volume bar
     SDL_Rect progressVolume;
     progressVolume.x = 15; progressVolume.y = window_h - 45; 
     progressVolume.w = window_w - 30; progressVolume.h = 30;
     draw_progress(progressVolume, synth->volume / MAX_VOLUME, true);
-    
+        
     // "Frequency" label
     draw_text("Frequency", 190, 30, textColor, sans);
-    
+        
     // Frequency bar
     SDL_Rect progressFrequency;
     progressFrequency.x = window_w * 0.5 - 15; progressFrequency.y = 15; 
     progressFrequency.w = 30; progressFrequency.h = window_h - 100;
     double freqNormalized = synth->get_normalized_frequency(synth->frequency);
     draw_progress(progressFrequency, freqNormalized, false);
-    
+        
     // Labels of pedals
     const char* textA;
     const char* textB;
@@ -116,7 +116,7 @@ void Input::refresh_surface(WaveSynth* synth) {
         autotuneText += std::string(" (full)");
     }
     const char* textAutotune = autotuneText.c_str();
-    
+        
     // Draw pedals
     draw_pedal(textA, 350, 30, synth->is_secondary_frequency_active());
     draw_pedal(textB, 350, 70, synth->is_octave_offset());
@@ -124,7 +124,7 @@ void Input::refresh_surface(WaveSynth* synth) {
     draw_pedal(textAutotune, 350, 160, lastAutotuneMode != synth->get_autotune_mode());
     lastWaveform = synth->get_waveform();
     lastAutotuneMode = synth->get_autotune_mode();
-    
+       
     // Note display square
     SDL_Rect noteRect;
     noteRect.x = 190; noteRect.y = 70;
@@ -132,44 +132,43 @@ void Input::refresh_surface(WaveSynth* synth) {
     SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
     SDL_RenderFillRect(renderer, &noteRect);
     round_corners(noteRect);
-    
+        
     // Current note display with semantic color
     int lowerNoteIdx = synth->get_nearest_lower_note_index();
     int noteIdx = lowerNoteIdx;
     double lowerNoteFreqNorm = synth->get_normalized_frequency(NOTES[lowerNoteIdx]);
-    double nextNoteFreqNorm = synth->get_normalized_frequency(NOTES[lowerNoteIdx + 1]);
-    double freqDiffNorm = nextNoteFreqNorm - lowerNoteFreqNorm;
-    float diffUpper = nextNoteFreqNorm - freqNormalized;
-    float diffLower = freqNormalized - lowerNoteFreqNorm;
-    SDL_Color noteColor = {220, 220, 255, 255};
     float error = 0.0;
-    if (diffUpper == 0) {
-        noteIdx++;
-    } else if (diffLower <= diffUpper) {
-        error = diffLower / (0.5 * freqDiffNorm);
-    } else if (diffLower > diffUpper) {
-        noteIdx++;
-        error = diffUpper / (0.5 * freqDiffNorm);
+    SDL_Color noteColor = {220, 220, 255, 255};
+    if (lowerNoteIdx + 1 < NUM_NOTES) {
+        double nextNoteFreqNorm = synth->get_normalized_frequency(NOTES[lowerNoteIdx + 1]);
+        double freqDiffNorm = nextNoteFreqNorm - lowerNoteFreqNorm;
+        float diffUpper = nextNoteFreqNorm - freqNormalized;
+        float diffLower = freqNormalized - lowerNoteFreqNorm;
+        error = 0.0;
+        if (diffUpper == 0) {
+            noteIdx++;
+        } else if (diffLower <= diffUpper) {
+            error = diffLower / (0.5 * freqDiffNorm);
+        } else if (diffLower > diffUpper) {
+            noteIdx++;
+            error = diffUpper / (0.5 * freqDiffNorm);
+        }
+    } else {
+        error = 0.0;
     }
     noteColor.r = 220 * (1 - error);
     noteColor.g = 220 * (1 - error);
     noteColor.b = 255 * (1 - error);
     draw_text(NOTE_NAMES[noteIdx], 195, 90, noteColor, sansLarge);
-    
+        
     // Help text
-    const char* helpText1 = "Use the sensors to control";
-    const char* helpText2 = "frequency and volume.";
-    const char* helpText3 = "Press {a,b,c} to trigger";
-    const char* helpText4 = "the corresponding pedals.";
-    const char* helpText5 = "Press {1,2,3} to set an";
-    const char* helpText6 = "autotune mode.";
-    draw_text(helpText1, 350, 220, textColor, sans);
-    draw_text(helpText2, 350, 240, textColor, sans);
-    draw_text(helpText3, 350, 270, textColor, sans);
-    draw_text(helpText4, 350, 290, textColor, sans);
-    draw_text(helpText5, 350, 320, textColor, sans);
-    draw_text(helpText6, 350, 340, textColor, sans);
-    
+    draw_text(HELP_TEXT_1, 350, 220, textColor, sans);
+    draw_text(HELP_TEXT_2, 350, 240, textColor, sans);
+    draw_text(HELP_TEXT_3, 350, 270, textColor, sans);
+    draw_text(HELP_TEXT_4, 350, 290, textColor, sans);
+    draw_text(HELP_TEXT_5, 350, 320, textColor, sans);
+    draw_text(HELP_TEXT_6, 350, 340, textColor, sans);
+        
     // Publish rendered surface
     SDL_RenderPresent(renderer);
 }
@@ -202,6 +201,7 @@ void Input::draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font*
     SDL_RenderCopy(renderer, message, &(surfaceMessage->clip_rect), &textRect);
     
     SDL_FreeSurface(surfaceMessage);
+    SDL_DestroyTexture(message);
 }
 
 void Input::draw_progress(SDL_Rect rect, float share, bool inReadDirection) {
@@ -253,7 +253,6 @@ void Input::round_corners(SDL_Rect rect) {
     SDL_RenderDrawPoint(renderer, rect.x + rect.w - 1, rect.y + rect.h - 1);
 }
 
-
 /*
  * Initial input and video settings
  */
@@ -281,9 +280,6 @@ void Input::setup() {
     TTF_Init();
     sans = TTF_OpenFont("LiberationSans-Regular.ttf", 16);
     sansLarge = TTF_OpenFont("LiberationSans-Regular.ttf", 30);
-    
-    // clean up on exit
-    atexit(SDL_Quit);
 }
 
 void Input::fetch_input(float *x, float *y) {
@@ -291,3 +287,9 @@ void Input::fetch_input(float *x, float *y) {
     *x = (float) mouse_x / 1920;
     *y = (float) (1080 - mouse_y) / 1080;
 } 
+
+void Input::clean_up() {
+    
+    SDL_DestroyRenderer(renderer);
+    SDL_Quit();
+}

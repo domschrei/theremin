@@ -26,8 +26,16 @@ private:
     void draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font);
     void round_corners(SDL_Rect rect);
     
+    
     int lastWaveform = WAVEFORM;
     int lastAutotuneMode = AUTOTUNE_MODE;
+    
+    const char* HELP_TEXT_1 = "Use the sensors to control";
+    const char* HELP_TEXT_2 = "frequency and volume.";
+    const char* HELP_TEXT_3 = "Press {a,b,c} to trigger";
+    const char* HELP_TEXT_4 = "the corresponding pedals.";
+    const char* HELP_TEXT_5 = "Press {1,2,3} to set an";
+    const char* HELP_TEXT_6 = "autotune mode.";
     
 public:
     const static int INPUT_PRESS_A = 1;
@@ -47,6 +55,7 @@ public:
     bool* poll_events();
     void fetch_input(float *x, float *y);
     void refresh_surface(WaveSynth* synth);
+    void clean_up();
 };
 
 #endif

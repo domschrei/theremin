@@ -33,10 +33,12 @@ void finish() {
         sensorInput.finish();
         std::cout << "Finished sensor connection." << std::endl;
     }
+    
+    input.clean_up();
 }
 
 void main_loop(int *t) {
-       
+    
     /*
      * Process input to adjust volume and frequency
      */
@@ -51,8 +53,8 @@ void main_loop(int *t) {
     } else if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
         
         // Grab input by Tinkerforge sensors
-        if (*t % 100 == 0) {
-
+        if (*t % 250 == 0) {
+            
             uint16_t value = 0;
             
             distance_us_get_distance_value(&(sensorInput.distanceFrequency), &value);
@@ -76,9 +78,9 @@ void main_loop(int *t) {
     } else {
         std::cerr << "No input device specified." << std::endl;
         exit(1);
-    }
+    }    
     
-    if (*t % 50 == 0) {
+    if (*t % 250 == 1) {
         /*
         * Process key input (by keyboard or foot switch)
         */
@@ -126,7 +128,7 @@ void main_loop(int *t) {
     } else {
         (*t)--;
     }
-    
+
     /*
      * Start playing if the audio buffer is full for the first time, 
      * or after it stopped working
@@ -138,8 +140,12 @@ void main_loop(int *t) {
     /*
      * Refresh the drawn surface at some times
      */
-    if (*t % 1000 == 0) {
+    if (*t % 1000 == 2) {
         input.refresh_surface(&synth);
+    }
+    
+    if (*t == INT16_MAX) {
+         *t = 0;
     }
 }
 

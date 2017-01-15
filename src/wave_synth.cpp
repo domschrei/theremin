@@ -230,7 +230,10 @@ double WaveSynth::get_max_frequency() {
 }
 
 double WaveSynth::get_normalized_frequency(double f) {
-    return (1.0 / (NUM_OCTAVES + 1)) * std::log2(f / LOWEST_NOTE);
+    if (f <= 0)
+        return 0.0;
+    else 
+        return (1.0 / (NUM_OCTAVES + 1)) * std::log2(f / LOWEST_NOTE);
 }
 
 bool WaveSynth::is_octave_offset() {
