@@ -53,7 +53,7 @@ void main_loop(int *t) {
     } else if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
         
         // Grab input by Tinkerforge sensors
-        if (*t % 250 == 0) {
+        if (*t % 100 == 0) {
             
             uint16_t value = 0;
             
@@ -144,7 +144,7 @@ void main_loop(int *t) {
         input.refresh_surface(&synth);
     }
     
-    if (*t == INT16_MAX) {
+    if (*t == INT32_MAX) {
          *t = 0;
     }
 }
