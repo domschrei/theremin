@@ -22,7 +22,7 @@ public:
     
     Uint8 *audio_pos;
     int bufferSize;
-    Uint8 buffer[1024];
+    Uint8 buffer[AUDIO_BUFFER_SIZE];
     int bufferIdx;
     
     int volume = SDL_MIX_MAXVOLUME;

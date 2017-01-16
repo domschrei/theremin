@@ -43,8 +43,11 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
     wait(a);
     
     // Sanity checks
-    if (len != 512) {
-        fprintf(stderr, "Audio: Invalid read length of %i.\n", len);
+    if (len != AUDIO_BUFFER_SIZE / 2) {
+        fprintf(stderr, "Audio: Invalid read length of %i.\n"
+        "Please make sure that the buffer size (AUDIO_BUFFER_SIZE)\n"
+        "in config.h is compliant with the amount of samples that\n"
+        "are read by SDL per block.", len);
         exit(1);
     }
     if ( a->unreadSamples < len ) {
@@ -55,7 +58,7 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
     }
     
     // Moves start index of buffer reading, if neccessary
-    int idx = 512;
+    int idx = len;
     if (a->audio_pos >= &(a->buffer[a->bufferSize])) {
         a->audio_pos = &(a->buffer[0]);
         idx = 0;
@@ -88,7 +91,7 @@ void Audio::set_volume(float volume_0_to_1) {
 void Audio::setup_audio() {
     
     bufferIdx = 0;
-    bufferSize = 1024;
+    bufferSize = AUDIO_BUFFER_SIZE;
 
     /* Initialize defaults, Video and Audio 
     if((SDL_Init(SDL_INIT_AUDIO) == -1)) { 
@@ -102,7 +105,7 @@ void Audio::setup_audio() {
     wanted.freq = 16384; //22050;
     wanted.format = AUDIO_U8;
     wanted.channels = 1;    /* 1 = mono, 2 = stereo */
-    wanted.samples = 1024;
+    wanted.samples = AUDIO_BUFFER_ADVERTISED_READ_SIZE;
     wanted.callback = fill_audio;
     wanted.userdata = NULL;
 
