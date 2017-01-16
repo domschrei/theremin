@@ -45,10 +45,12 @@ void main_loop(int *t) {
     if (INPUT_DEVICE == INPUT_DEVICE_MOUSE) {
         
         // Grab input by mouse cursor
-        float x_value = 0, y_value = 0;
-        input.fetch_input(&x_value, &y_value);
-        synth.update_frequency(y_value);
-        synth.update_volume(x_value);
+        if (*t % 100 == 0) {
+            float x_value = 0, y_value = 0;
+            input.fetch_input(&x_value, &y_value);
+            synth.update_frequency(y_value);
+            synth.update_volume(x_value);
+        }
         
     } else if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
         
@@ -116,7 +118,6 @@ void main_loop(int *t) {
             synth.set_autotune_mode(AUTOTUNE_SMOOTH);
         } else if (input_keys[Input::INPUT_PRESS_3]) {
             synth.set_autotune_mode(AUTOTUNE_FULL);
-            
         }
     }
     
@@ -140,7 +141,7 @@ void main_loop(int *t) {
     /*
      * Refresh the drawn surface at some times
      */
-    if (*t % 1000 == 2) {
+    if (REALTIME_DISPLAY && *t % 1000 == 2) {
         input.refresh_surface(&synth);
     }
     

@@ -280,12 +280,23 @@ void Input::setup() {
     TTF_Init();
     sans = TTF_OpenFont("LiberationSans-Regular.ttf", 16);
     sansLarge = TTF_OpenFont("LiberationSans-Regular.ttf", 30);
+    
+    if (!REALTIME_DISPLAY) {
+        
+        // Constant black text on white background
+        SDL_Color black = {0, 0, 0, 255};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+        draw_text("THEREMIN", 20, 20, black, sansLarge);
+        draw_text("Realtime display disabled.", 20, 60, black, sans);
+        SDL_RenderPresent(renderer);
+    }
 }
 
 void Input::fetch_input(float *x, float *y) {
     
-    *x = (float) mouse_x / 1920;
-    *y = (float) (1080 - mouse_y) / 1080;
+    *x = (float) mouse_x / window_w;
+    *y = (float) (window_h - mouse_y) / window_h;
 } 
 
 void Input::clean_up() {
