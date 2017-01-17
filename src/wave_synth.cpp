@@ -262,8 +262,6 @@ int WaveSynth::get_nearest_lower_note_index() {
     
     while (upper - lower > 1) {
         
-        double freqLower = NOTES[lower];
-        double freqUpper = NOTES[upper];
         int mid = 0.5 * (lower + upper);
         
         if (frequency > NOTES[mid]) {
