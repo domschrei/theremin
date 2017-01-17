@@ -35,7 +35,7 @@ A mini USB cable must connect the master brick with the computer.
 I am developing and executing the program on Linux only, so I will describe the process for Linux systems. 
 However, it should not really be a problem to get it running on other platforms, as all used tools and frameworks are cross-platform.
 
-Install the `gcc`, `make` and the `SDL2` library (the application uses the standard libraries and the _ttf_ libraries).
+Install the `gcc`, `make`, `cmake` and the `SDL2` library (the application uses the standard libraries and the _ttf_ libraries).
 
 In order to fetch and build [the C(++) bindings for Tinkerforge](https://www.tinkerforge.com/en/doc/Downloads.html#downloads-bindings-examples):
 * You can just execute `bash get_tinkerforge.sh` (hereby, the script assumes that the commands `wget` and `unzip` are available). 
@@ -58,7 +58,7 @@ You can now compile the Theremin application by executing
 ```
 bash build.sh
 ```
-inside the application's root folder, which should let an executable called `theremin` appear. You can also give additional compiler settings to the script, like optimization (`-O3`) or debugging modes (`-Og -g`).
+inside the application's root folder, which should let an executable called `theremin` appear.
 
 Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing `libtinkerforge.so`, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/ ./theremin`.) The USB foot switch should be plug-and-play.
 
@@ -90,4 +90,4 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 If your computer can't handle the program without stagnating or if you aren't happy with some of the default settings, you can look into the header file `src/config.h` where many things can be tweaked. For example, you can change the constant `AUDIO_BUFFER_ADVERTISED_READ_SIZE` if the application complains that there has been a sample read of invalid length. To tune performance (and trade against better audio quality and/or lower latency), expecially the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted. The real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`), resulting in a better performance.
 
-Please note that the program has to be recompiled (`bash build.sh`) so that the config changes take effect. 
+Please note that the program has to be recompiled (`bash build.sh`) so that the config changes take effect.

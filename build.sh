@@ -1,2 +1,17 @@
 #!/bin/bash
-g++ -std=c++11 "$@" -L./tinkerforge/source/ -lSDL2 -lSDL2_ttf -ltinkerforge src/wave_synth.cpp src/input.cpp src/audio.cpp src/sensor_input.cpp src/main.cpp -o theremin
+
+set -e
+
+# Minimal command without CMake
+#g++ -std=c++11 "$@" -L./tinkerforge/source/ -lSDL2 -lSDL2_ttf -ltinkerforge src/wave_synth.cpp src/input.cpp src/audio.cpp src/sensor_input.cpp src/main.cpp -o theremin
+
+# CMake build
+mkdir -p build
+cd build
+cmake ..
+make
+mv theremin ../
+echo
+echo "Compilation successful. Execute the command"
+echo "    ./theremin"
+echo "to launch the application."
