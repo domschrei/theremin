@@ -82,7 +82,7 @@ void main_loop(int *t) {
         exit(1);
     }    
     
-    if (*t % PERIOD_INPUT_GENERAL == 1) {
+    if (*t % PERIOD_INPUT_GENERAL == 0) {
         /*
         * Process key input (by keyboard or foot switch)
         */
@@ -141,7 +141,7 @@ void main_loop(int *t) {
     /*
      * Refresh the drawn surface at some times, if enabled
      */
-    if (REALTIME_DISPLAY && (*t % PERIOD_DISPLAY_REFRESH == 2)) {
+    if (REALTIME_DISPLAY && (*t % PERIOD_DISPLAY_REFRESH == 0)) {
         input.refresh_surface(&synth);
     }
     

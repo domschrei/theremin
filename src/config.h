@@ -14,14 +14,6 @@
 #define HOST "localhost"
 #define PORT 4223
 
-// "true" to output each sample on stdout 
-// (WARNING: very much data, do not pipe into a file
-// or it will fill your disk rather fast!)
-#define LOG_DATA false
-
-// "true" to output each new frequency to stdout
-#define LOG_FREQ false
-
 // "true" to show a real-time graphical info display
 // which might be too expensive for some computers to
 // maintain in addition to the audio synthesis
@@ -39,9 +31,29 @@
 // Must be a low positive integer
 #define NUM_OCTAVES 2
 
+// "true" to output each sample on stdout 
+// (WARNING: very much data, do not pipe into a file
+// or it will fill your disk rather fast!)
+#define LOG_DATA false
+
+// "true" to output each new frequency to stdout
+#define LOG_FREQ false
+
 // Maximal possible volume to play at
 // Valid values are 1..255
 #define MAX_VOLUME 255
+
+// The input device (see INPUT_* inside const.h)
+#define INPUT_DEVICE INPUT_DEVICE_MOUSE
+
+// The default autotune mode
+// See AUTOTUNE_* inside const.h
+#define AUTOTUNE_MODE AUTOTUNE_SMOOTH
+
+// The amount of generated and played samples per second.
+// Can be tweaked downwards to get better performance but
+// worse audio quality
+#define AUDIO_SAMPLE_RATE 16384
 
 // Size of the audio ring buffer
 // Must be exactly twice as large as the amount of
@@ -53,20 +65,6 @@
 // AUDIO_BUFFER_SIZE / 2 on 32-bit systems
 #define AUDIO_BUFFER_ADVERTISED_READ_SIZE 1024
 
-// The amount of generated and played samples per second.
-// Can be tweaked downwards to get better performance but
-// worse audio quality
-// WARNING: a lower sample rate also leads to lower
-// polling frequencies (see PERIOD_* at the bottom).
-#define AUDIO_SAMPLE_RATE 16384
-
-// The input device (see INPUT_* inside const.h)
-#define INPUT_DEVICE INPUT_DEVICE_MOUSE
-
-// The default autotune mode
-// See AUTOTUNE_* inside const.h
-#define AUTOTUNE_MODE AUTOTUNE_SMOOTH
-
 // Calibration of sensors; the MIN and MAX values
 // represent lower and upper limits for the 
 // distance values to be valid.
@@ -77,15 +75,20 @@
 #define SENSOR_VOL_MIN_VALUE 70
 #define SENSOR_VOL_MAX_VALUE 400
 
-// Period lengths for specific application tasks;
-// lower number means that the task is done 
-// more frequently. At default sample rate of around 16k 
-// samples/second, a value of 1000 means that the
-// task is done _at least_ 16 times per second, as long
-// as the audio runs smoothly without stagnating.
-#define PERIOD_INPUT_MOUSE 100
-#define PERIOD_INPUT_SENSOR 100
-#define PERIOD_INPUT_GENERAL 250
-#define PERIOD_DISPLAY_REFRESH 1000
+// Frequencies of specific application tasks;
+// each number means that the corresponding task is done 
+// about this many times per second, as long as the 
+// audio runs smoothly without stagnating.
+#define TASK_FREQUENCY_INPUT_MOUSE 100
+#define TASK_FREQUENCY_INPUT_SENSOR 100
+#define TASK_FREQUENCY_INPUT_GENERAL 50
+#define TASK_FREQUENCY_DISPLAY_REFRESH 25
+
+// Calculates the sample period for the tasks
+// (Do not change this, change TASK_FREQUENCY_* instead)
+#define PERIOD_INPUT_MOUSE (AUDIO_SAMPLE_RATE/TASK_FREQUENCY_INPUT_MOUSE)
+#define PERIOD_INPUT_SENSOR (AUDIO_SAMPLE_RATE/TASK_FREQUENCY_INPUT_SENSOR)
+#define PERIOD_INPUT_GENERAL (AUDIO_SAMPLE_RATE/TASK_FREQUENCY_INPUT_GENERAL)
+#define PERIOD_DISPLAY_REFRESH (AUDIO_SAMPLE_RATE/TASK_FREQUENCY_DISPLAY_REFRESH)
 
 #endif
