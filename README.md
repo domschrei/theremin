@@ -58,9 +58,9 @@ You can now compile the Theremin application by executing
 ```
 bash build.sh
 ```
-inside the application's root folder, which should let an executable called `theremin` appear.
+inside the application's root folder, which should let an executable called `theremin` appear. You can also give additional compiler settings to the script, like optimization (`-O3`) or debugging modes (`-Og -g`).
 
-Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! The USB foot switch should be plug-and-play.
+Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing `libtinkerforge.so`, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/ ./theremin`.) The USB foot switch should be plug-and-play.
 
 ## Using and tweaking
 
@@ -88,6 +88,6 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 ### Configuration
 
-If your computer can't handle the program without stagnating or if you aren't happy with some of the default settings, you can look into the header file `src/config.h`, where many things can be tweaked. For example, you can change the constant `AUDIO_BUFFER_ADVERTISED_READ_SIZE` if the application complains that there has been a sample read of invalid length. To tune performance (and trade against better audio quality and lower latency), expecially the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted. The real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`), resulting in a better performance.
+If your computer can't handle the program without stagnating or if you aren't happy with some of the default settings, you can look into the header file `src/config.h` where many things can be tweaked. For example, you can change the constant `AUDIO_BUFFER_ADVERTISED_READ_SIZE` if the application complains that there has been a sample read of invalid length. To tune performance (and trade against better audio quality and/or lower latency), expecially the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted. The real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`), resulting in a better performance.
 
-Please note that the program has to be recompiled so that the config changes take effect. 
+Please note that the program has to be recompiled (`bash build.sh`) so that the config changes take effect. 
