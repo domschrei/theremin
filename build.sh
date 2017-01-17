@@ -3,7 +3,7 @@
 set -e
 
 # Minimal command without CMake
-#g++ -std=c++11 "$@" -L./tinkerforge/source/ -lSDL2 -lSDL2_ttf -ltinkerforge src/wave_synth.cpp src/input.cpp src/audio.cpp src/sensor_input.cpp src/main.cpp -o theremin
+#g++ -std=c++11 "$@" -L./tinkerforge/source/ -lSDL2 -lSDL2_ttf -ltinkerforge src/wave_synth.cpp src/user_interface.cpp src/audio.cpp src/sensor_input.cpp src/main.cpp -o theremin
 
 # CMake build
 mkdir -p build

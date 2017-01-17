@@ -2,12 +2,12 @@
 
 #include "config.h"
 #include "wave_synth.h"
-#include "input.h"
+#include "user_interface.h"
 #include "audio.h"
 #include "sensor_input.h"
 
 WaveSynth synth;
-Input input;
+UserInterface userInterface;
 Audio* audio;
 SensorInput sensorInput;
 
@@ -34,7 +34,7 @@ void finish() {
         std::cout << "Finished sensor connection." << std::endl;
     }
     
-    input.clean_up();
+    userInterface.clean_up();
 }
 
 void main_loop(int *t) {
@@ -47,7 +47,7 @@ void main_loop(int *t) {
         // Grab input by mouse cursor
         if (*t % PERIOD_INPUT_MOUSE == 0) {
             float x_value = 0, y_value = 0;
-            input.fetch_input(&x_value, &y_value);
+            userInterface.fetch_input(&x_value, &y_value);
             synth.update_frequency(y_value);
             synth.update_volume(x_value);
         }
@@ -86,10 +86,10 @@ void main_loop(int *t) {
         /*
         * Process key input (by keyboard or foot switch)
         */
-        bool* input_keys = input.poll_events();
+        bool* input_keys = userInterface.poll_events();
         
         // Adds a second tone to the audio output, if pressed
-        if (input_keys[Input::INPUT_PRESS_A]) {
+        if (input_keys[UserInterface::INPUT_PRESS_A]) {
             if (!synth.is_secondary_frequency_active()) {
                 synth.set_secondary_frequency(synth.frequency);
             } else {
@@ -98,7 +98,7 @@ void main_loop(int *t) {
         }
         
         // Octaves the audio upwards, if pressed
-        if (input_keys[Input::INPUT_PRESS_B]) {
+        if (input_keys[UserInterface::INPUT_PRESS_B]) {
             if (!synth.is_octave_offset()) {
                 synth.set_octave_offset(true);
             } else {
@@ -107,16 +107,16 @@ void main_loop(int *t) {
         }
         
         // Switches to the next waveform on each press
-        if (input_keys[Input::INPUT_PRESS_C]) {
+        if (input_keys[UserInterface::INPUT_PRESS_C]) {
             synth.switch_waveform();
         }
         
         // Autotune settings
-        if (input_keys[Input::INPUT_PRESS_1]) {
+        if (input_keys[UserInterface::INPUT_PRESS_1]) {
             synth.set_autotune_mode(AUTOTUNE_NONE);
-        } else if (input_keys[Input::INPUT_PRESS_2]) {
+        } else if (input_keys[UserInterface::INPUT_PRESS_2]) {
             synth.set_autotune_mode(AUTOTUNE_SMOOTH);
-        } else if (input_keys[Input::INPUT_PRESS_3]) {
+        } else if (input_keys[UserInterface::INPUT_PRESS_3]) {
             synth.set_autotune_mode(AUTOTUNE_FULL);
         }
     }
@@ -142,7 +142,7 @@ void main_loop(int *t) {
      * Refresh the drawn surface at some times, if enabled
      */
     if (REALTIME_DISPLAY && (*t % PERIOD_DISPLAY_REFRESH == 0)) {
-        input.refresh_surface(&synth);
+        userInterface.refresh_surface(&synth);
     }
     
     if (*t == INT32_MAX) {
@@ -153,7 +153,8 @@ void main_loop(int *t) {
 int main(int argc, const char* argv[]) 
 {
     // Basic input (i.e. mouse and keys / footswitch)
-    input.setup();
+    // and graphical output
+    userInterface.setup();
     
     // Sensor input
     if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {

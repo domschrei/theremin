@@ -10,7 +10,7 @@ link_directories(${PROJECT_SOURCE_DIR}/tinkerforge/source/)
 add_executable(
 theremin 
     src/wave_synth.cpp 
-    src/input.cpp 
+    src/user_interface.cpp 
     src/audio.cpp 
     src/sensor_input.cpp 
     src/main.cpp

@@ -1,13 +1,13 @@
 #include <iostream>
 
-#include "input.h"
+#include "user_interface.h"
 
 /*
  * Returns an array of bools. At index i of this array,
  * the bool determines whether the input with ID i has
- * occured (see Input::INPUT_*).
+ * occured (see UserInterface::INPUT_*).
  */
-bool* Input::poll_events()
+bool* UserInterface::poll_events()
 {    
     static bool results[13];
     for (int i = 0; i < 13; i++) {
@@ -58,7 +58,7 @@ bool* Input::poll_events()
     return results;
 }
 
-void Input::refresh_surface(WaveSynth* synth) {
+void UserInterface::refresh_surface(WaveSynth* synth) {
     
     // White background
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -173,7 +173,7 @@ void Input::refresh_surface(WaveSynth* synth) {
     SDL_RenderPresent(renderer);
 }
 
-void Input::draw_pedal(const char* text, int x, int y, bool isPressed) {
+void UserInterface::draw_pedal(const char* text, int x, int y, bool isPressed) {
     
     SDL_Rect rect;
     rect.x = x; rect.y = y; rect.w = 220; rect.h = 30;
@@ -191,7 +191,7 @@ void Input::draw_pedal(const char* text, int x, int y, bool isPressed) {
     draw_text(text, x + 5, y + 5, colorText, sans);
 }
 
-void Input::draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font) {
+void UserInterface::draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font) {
 
     SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, color);
     SDL_Texture* message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
@@ -204,7 +204,7 @@ void Input::draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font*
     SDL_DestroyTexture(message);
 }
 
-void Input::draw_progress(SDL_Rect rect, float share, bool inReadDirection) {
+void UserInterface::draw_progress(SDL_Rect rect, float share, bool inReadDirection) {
     
     bool horizontal = (rect.w > rect.h);
     
@@ -243,7 +243,7 @@ void Input::draw_progress(SDL_Rect rect, float share, bool inReadDirection) {
     round_corners(rect);
 }
 
-void Input::round_corners(SDL_Rect rect) {
+void UserInterface::round_corners(SDL_Rect rect) {
     
     // Minimalistically rounded corners
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -256,7 +256,7 @@ void Input::round_corners(SDL_Rect rect) {
 /*
  * Initial input and video settings
  */
-void Input::setup() {
+void UserInterface::setup() {
     
     // Initialize SDL video mode
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -293,13 +293,13 @@ void Input::setup() {
     }
 }
 
-void Input::fetch_input(float *x, float *y) {
+void UserInterface::fetch_input(float *x, float *y) {
     
     *x = (float) mouse_x / window_w;
     *y = (float) (window_h - mouse_y) / window_h;
 } 
 
-void Input::clean_up() {
+void UserInterface::clean_up() {
     
     SDL_DestroyRenderer(renderer);
     SDL_Quit();

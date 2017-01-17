@@ -6,7 +6,7 @@
 
 #include "wave_synth.h"
 
-class Input {
+class UserInterface {
   
 private:
     float mouse_x;
