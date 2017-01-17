@@ -44,10 +44,10 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
     
     // Sanity checks
     if (len != AUDIO_BUFFER_SIZE / 2) {
-        fprintf(stderr, "Audio: Invalid read length of %i.\n"
+        fprintf(stderr, "Audio: Invalid read length of %i; should be %i.\n"
         "Please make sure that the buffer size (AUDIO_BUFFER_SIZE)\n"
-        "in config.h is compliant with the amount of samples that\n"
-        "are read by SDL per block.", len);
+        "is compliant with the advertised read size (AUDIO_BUFFER_ADVERTISED_READ_SIZE).", 
+        len, AUDIO_BUFFER_SIZE / 2);
         exit(1);
     }
     if ( a->unreadSamples < len ) {
