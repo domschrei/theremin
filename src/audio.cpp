@@ -46,7 +46,7 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
     if (len != AUDIO_BUFFER_SIZE / 2) {
         fprintf(stderr, "Audio: Invalid read length of %i; should be %i.\n"
         "Please make sure that the buffer size (AUDIO_BUFFER_SIZE)\n"
-        "is compliant with the advertised read size (AUDIO_BUFFER_ADVERTISED_READ_SIZE).", 
+        "is compliant with the advertised read size (AUDIO_BUFFER_ADVERTISED_READ_SIZE).\n", 
         len, AUDIO_BUFFER_SIZE / 2);
         exit(1);
     }
@@ -54,7 +54,7 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
         fprintf(stderr, "Audio Error: Not enough samples left to read.\n"
             "Maybe the computer is overburdened and you should stop\n"
             "other processes, optimize this program's compilation,\n"
-            "or disable the graphical real-time screen (if enabled)."
+            "or disable the graphical real-time screen (if enabled)\n."
         );
         a->isPlaying = false;
         notify(a);
