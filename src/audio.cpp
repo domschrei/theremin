@@ -51,7 +51,11 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
         exit(1);
     }
     if ( a->unreadSamples < len ) {
-        fprintf(stderr, "Audio: Not enough samples left to read.\n");
+        fprintf(stderr, "Audio Error: Not enough samples left to read.\n"
+            "Maybe the computer is overburdened and you should stop\n"
+            "other processes, optimize this program's compilation,\n"
+            "or disable the graphical real-time screen (if enabled)."
+        );
         a->isPlaying = false;
         notify(a);
         return;
@@ -102,7 +106,7 @@ void Audio::setup_audio() {
     SDL_AudioSpec wanted;
 
     /* Set the audio format */
-    wanted.freq = 16384; //22050;
+    wanted.freq = AUDIO_SAMPLE_RATE;
     wanted.format = AUDIO_U8;
     wanted.channels = 1;    /* 1 = mono, 2 = stereo */
     wanted.samples = AUDIO_BUFFER_ADVERTISED_READ_SIZE;

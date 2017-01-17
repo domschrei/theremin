@@ -15,7 +15,7 @@
 #define PORT 4223
 
 // "true" to output each sample on stdout 
-// (warning: much data, do not pipe into a file
+// (WARNING: very much data, do not pipe into a file
 // or it will fill your disk rather fast!)
 #define LOG_DATA false
 
@@ -23,12 +23,11 @@
 #define LOG_FREQ false
 
 // "true" to show a real-time graphical info display
-// which is too expensive for some computers to
+// which might be too expensive for some computers to
 // maintain in addition to the audio synthesis
 #define REALTIME_DISPLAY true
 
-// The default waveform
-// Number from 1 to 10, see WAVE_* inside const.h
+// The default waveform, see WAVE_* inside const.h
 #define WAVEFORM WAVE_SIN
 
 // Lowest possible note to play
@@ -48,10 +47,21 @@
 // Must be exactly twice as large as the amount of
 // samples SDL reads each time
 #define AUDIO_BUFFER_SIZE 1024
+
+// Advertised size of what SDL should read on each take
+// Must be AUDIO_BUFFER_SIZE on 64-bit systems or
+// AUDIO_BUFFER_SIZE / 2 on 32-bit systems
 #define AUDIO_BUFFER_ADVERTISED_READ_SIZE 1024
 
+// The amount of generated and played samples per second.
+// Can be tweaked downwards to get better performance but
+// worse audio quality
+// WARNING: the frequencies as defined in const.h are only
+// valid for a sample rate of 16384. At half the sample
+// rate, all notes will sound an octave lower.
+#define AUDIO_SAMPLE_RATE 16384
+
 // The input device (see INPUT_* inside const.h)
-// Currently, only sensor works!
 #define INPUT_DEVICE INPUT_DEVICE_MOUSE
 
 // The default autotune mode
@@ -67,5 +77,16 @@
 #define SENSOR_FREQ_MAX_VALUE 1000
 #define SENSOR_VOL_MIN_VALUE 70
 #define SENSOR_VOL_MAX_VALUE 400
+
+// Period lengths for specific application tasks;
+// lower number means that the task is done 
+// more frequently. At default sample rate of around 16k 
+// samples/second, a value of 1000 means that the
+// task is done _at least_ 16 times per second, as long
+// as the audio runs smoothly without stagnating.
+#define PERIOD_INPUT_MOUSE 100
+#define PERIOD_INPUT_SENSOR 100
+#define PERIOD_INPUT_GENERAL 250
+#define PERIOD_DISPLAY_REFRESH 1000
 
 #endif

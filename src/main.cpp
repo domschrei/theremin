@@ -45,7 +45,7 @@ void main_loop(int *t) {
     if (INPUT_DEVICE == INPUT_DEVICE_MOUSE) {
         
         // Grab input by mouse cursor
-        if (*t % 100 == 0) {
+        if (*t % PERIOD_INPUT_MOUSE == 0) {
             float x_value = 0, y_value = 0;
             input.fetch_input(&x_value, &y_value);
             synth.update_frequency(y_value);
@@ -55,7 +55,7 @@ void main_loop(int *t) {
     } else if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
         
         // Grab input by Tinkerforge sensors
-        if (*t % 100 == 0) {
+        if (*t % PERIOD_INPUT_SENSOR == 0) {
             
             uint16_t value = 0;
             
@@ -82,7 +82,7 @@ void main_loop(int *t) {
         exit(1);
     }    
     
-    if (*t % 250 == 1) {
+    if (*t % PERIOD_INPUT_GENERAL == 1) {
         /*
         * Process key input (by keyboard or foot switch)
         */
@@ -139,9 +139,9 @@ void main_loop(int *t) {
     }
     
     /*
-     * Refresh the drawn surface at some times
+     * Refresh the drawn surface at some times, if enabled
      */
-    if (REALTIME_DISPLAY && *t % 1000 == 2) {
+    if (REALTIME_DISPLAY && (*t % PERIOD_DISPLAY_REFRESH == 2)) {
         input.refresh_surface(&synth);
     }
     
