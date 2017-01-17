@@ -85,3 +85,9 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 * `none`: The distance value of the sensor gets directly mapped to a frequency (in an exponential manner, such that moving the hand by the same amount on different height levels should yield roughly the same frequency interval).
 * `smooth`: Works like `none`, but adds a specific sine wave to the frequency such that the played tone gets "pushed" towards proper halftones, but in-between frequencies are possible nonetheless.
 * `full`: Every input frequency (the output of the `none` mode) will be aligned towards the halftone which has the minimal distance to the current frequency. This will make the output tone "jump" in between halftones but always produce properly aligned tones.
+
+### Configuration
+
+If your computer can't handle the program without stagnating or if you aren't happy with some of the default settings, you can look into the header file `src/config.h`, where many things can be tweaked. For example, you can change the constant `AUDIO_BUFFER_ADVERTISED_READ_SIZE` if the application complains that there has been a sample read of invalid length. To tune performance (and trade against better audio quality and lower latency), expecially the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted. The real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`), resulting in a better performance.
+
+Please note that the program has to be recompiled so that the config changes take effect. 
