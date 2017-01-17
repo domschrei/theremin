@@ -11,7 +11,7 @@ class WaveSynth {
 
 public:
     // Basic audio properties
-    double sample_rate = 16384;
+    double sample_rate = AUDIO_SAMPLE_RATE;
     double frequency = LOWEST_NOTE; // will be changed by 1st input
     double volume = 255;
     double period = sample_rate / frequency; // will be changed by 1st input

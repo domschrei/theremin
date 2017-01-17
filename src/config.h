@@ -56,9 +56,8 @@
 // The amount of generated and played samples per second.
 // Can be tweaked downwards to get better performance but
 // worse audio quality
-// WARNING: the frequencies as defined in const.h are only
-// valid for a sample rate of 16384. At half the sample
-// rate, all notes will sound an octave lower.
+// WARNING: a lower sample rate also leads to lower
+// polling frequencies (see PERIOD_* at the bottom).
 #define AUDIO_SAMPLE_RATE 16384
 
 // The input device (see INPUT_* inside const.h)

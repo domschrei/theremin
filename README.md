@@ -26,7 +26,7 @@ I am using C++ with the [SDL2](https://www.libsdl.org/) library (_core_ and _ttf
 
 ### Hardware
 
-First, the Tinkerforge sensors and the master brick mentioned above are needed, as well as a triple foot switch like [this one](https://www.amazon.de/dp/B00WS2GZU2/ref=sr_ph?ie=UTF8&qid=1484338452&sr=1&keywords=usb+foot+pedal) (there are many providers for this specific piece). A plain old computer with USB input and audio output should do the job of running the application – a Raspberry Pi should work nice, as well.
+First, the Tinkerforge sensors and the master brick mentioned above are needed, as well as a triple foot switch like [this one](https://www.amazon.de/dp/B00WS2GZU2/ref=sr_ph?ie=UTF8&qid=1484338452&sr=1&keywords=usb+foot+pedal) (there are many providers for this specific piece). A plain old computer with USB input and audio output should do the job of running the application. I can also confirm that a Raspberry Pi 3 (Model B) with default Raspbian (_Pixel_ Environment) runs the application well, although the realtime info display needs to be turned off in order to maintain the default sample rate.
 
 A mini USB cable must connect the master brick with the computer.
 
