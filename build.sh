@@ -10,7 +10,7 @@ mkdir -p build
 cd build
 cmake ..
 make
-mv theremin ../
+cp theremin ../
 echo
 echo "Compilation successful. Execute the command"
 echo "    ./theremin"
