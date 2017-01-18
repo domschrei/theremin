@@ -11,17 +11,17 @@
 
 // Implemented waveforms
 #define WAVE_SIN 1
-#define WAVE_SQUARE 2
-#define WAVE_TRIANGLE 3
-#define WAVE_SAW 4
-#define WAVE_SIN_ASSYM 5
-#define WAVE_SIN_INTERFERING 6
-#define WAVE_PLATEAU 7
+#define WAVE_TRIANGLE 2
+#define WAVE_SIN_ASSYM 3
+#define WAVE_PLATEAU 4
+#define WAVE_SIN_INTERFERING 5
+#define WAVE_SINGLESLIT 6
+#define WAVE_HALFCIRC 7
 #define WAVE_GAUSS 8
-#define WAVE_HALFCIRC 9
-#define WAVE_SINGLESLIT 10
+#define WAVE_SAW 9
+#define WAVE_SQUARE 10
 
-static const char* WAVE_NAMES[] = {"", "sin", "square", "triangle", "saw", "sinassym", "sininterf", "plateau", "gauss", "halfcirc", "singleslit"};
+static const char* WAVE_NAMES[] = {"", "sin", "sinassym", "sininterf", "triangle", "square", "saw", "plateau", "gauss", "halfcirc", "singleslit"};
 
 // note frequencies
 #define  C_0    130.8127826502992
