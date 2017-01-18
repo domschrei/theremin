@@ -351,7 +351,7 @@ double WaveSynth::saw(double t, double period, double volume) {
 
 double WaveSynth::gauss(double t, double period, double volume) {
     
-    double interval = 80;
+    double interval = 40;
     double x = interval * fmod(t, period) / period - (interval / 2);
     double value = std::exp(-(x*x));
     return (uint8_t) (volume * value);
