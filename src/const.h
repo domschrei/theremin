@@ -21,7 +21,7 @@
 #define WAVE_SAW 9
 #define WAVE_SQUARE 10
 
-static const char* WAVE_NAMES[] = {"", "sin", "sinassym", "sininterf", "triangle", "square", "saw", "plateau", "gauss", "halfcirc", "singleslit"};
+static const char* WAVE_NAMES[] = {"", "sin", "triangle", "sinassym", "plateau", "sininterf", "singleslit", "halfcirc", "gauss", "saw", "square"};
 
 // note frequencies
 #define  C_0    130.8127826502992
