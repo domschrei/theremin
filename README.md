@@ -2,9 +2,9 @@
 
 Out of fun and interest, I built a [Theremin](https://en.wikipedia.org/wiki/Theremin)-like instrument, being played entirely touchless with both hands. The idea was to use simple distance sensors with a digital output to do the audio synthesis on a computer. This allows for interesting and fun ways to tinker with the instrument, such as "auto-tune", different audio waveforms or multiple tones at the same time.
 
-On this page, I am going to explain the instrument and the framework: how to build, how to install and how to use it. If you are interested in the process of creating the whole thing, visit my [project blog](https://github.com/domschrei/theremin/wiki/Digital-%22theremin%22:-Project-blog) where I explain it in detail.
+On this page, I am going to explain the instrument and the framework: how to build, how to install and how to use it. If you are interested in the process of creating the whole thing, visit my [project blog](https://github.com/domschrei/theremin/wiki/Digital-%22theremin%22:-Project-blog) where I explain it in detail. You can watch and listen to a little demo [here](http://dominikschreiber.de/vid/theremin-demo.webm) (.webm video), although I'm not playing very well yet.
 
-![My Theremin-like instrument](img/theremin.jpg)
+![My Theremin-like instrument with its periphery](img/theremin-periphery-small.jpg)
 
 The hardware part is really easy – I used two "Tinkerforge" [ultrasonic distance sensors](https://www.tinkerforge.com/de/doc/Hardware/Bricklets/Distance_US.html#distance-us-bricklet) connected to a [master brick](https://www.tinkerforge.com/de/doc/Hardware/Bricks/Master_Brick.html), which directly communicates with the computer via USB. A simple USB triple foot switch turned out to be a great addition in order to trigger specific effects.
 
