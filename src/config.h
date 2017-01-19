@@ -75,6 +75,11 @@
 #define SENSOR_VOL_MIN_VALUE 70
 #define SENSOR_VOL_MAX_VALUE 400
 
+// Determines by how many ticks the volume will be decreased
+// each time there is no valid sensor data for it
+// Must be a floating-point number
+#define VOLUME_DECAY 7.0
+
 // Frequencies of specific application tasks;
 // each number means that the corresponding task is done 
 // about this many times per second, as long as the 

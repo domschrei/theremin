@@ -192,12 +192,11 @@ void WaveSynth::update_frequency(float value) {
 void WaveSynth::update_volume(float value) {
     float desiredVolume = MAX_VOLUME * value;
     if (desiredVolume > volume) {
-        volume += std::min(3.0, desiredVolume - volume);
+        volume += std::min(VOLUME_DECAY, desiredVolume - volume);
     }
     if (desiredVolume < volume) {
-        volume -= std::min(3.0, volume - desiredVolume);
+        volume -= std::min(VOLUME_DECAY, volume - desiredVolume);
     }
-    //volume = MAX_VOLUME * value;
 }
 
 /*
