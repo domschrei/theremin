@@ -9,6 +9,8 @@ class SensorInput {
 public:
     void setup_sensors();
     void finish();
+    bool frequency_value(double* value);
+    bool volume_value(double* value);
     
     DistanceUS distanceFrequency;
     DistanceUS distanceVolume;

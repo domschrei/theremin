@@ -56,25 +56,16 @@ void main_loop(int *t) {
         
         // Grab input by Tinkerforge sensors
         if (*t % PERIOD_INPUT_SENSOR == 0) {
-            
-            uint16_t value = 0;
-            
-            distance_us_get_distance_value(&(sensorInput.distanceFrequency), &value);
-            // do not report values over the threshold
-            if (value <= SENSOR_FREQ_MAX_VALUE) {
-                // normalize the value to [0,1] and update the wave synthesizer
-                synth.update_frequency(((double) value - SENSOR_FREQ_MIN_VALUE) 
-                                / (SENSOR_FREQ_MAX_VALUE - SENSOR_FREQ_MIN_VALUE));
+            double value = 0.0;
+            bool valueOk;
+            valueOk = sensorInput.volume_value(&value);
+            if (valueOk) {
+                synth.update_volume(value);
             }
-            
-            distance_us_get_distance_value(&(sensorInput.distanceVolume), &value);
-            // cap values at the threshold
-            if (value >= SENSOR_VOL_MAX_VALUE) {
-                value = SENSOR_VOL_MAX_VALUE;
+            valueOk = sensorInput.frequency_value(&value);
+            if (valueOk) {
+                synth.update_frequency(value);
             }
-            // normalize the value to [0,1] and update the wave synthesizer
-            synth.update_volume(1 - ((double) value - SENSOR_VOL_MIN_VALUE) 
-                            / (SENSOR_VOL_MAX_VALUE - SENSOR_VOL_MIN_VALUE));
         }
         
     } else {
