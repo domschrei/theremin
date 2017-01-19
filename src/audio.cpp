@@ -54,7 +54,7 @@ void fill_audio(void *udata, Uint8 *stream, int len) {
         fprintf(stderr, "Audio Error: Not enough samples left to read.\n"
             "Maybe the computer is overburdened and you should stop\n"
             "other processes, optimize this program's compilation,\n"
-            "or disable the graphical real-time screen (if enabled)\n."
+            "or disable the graphical real-time screen (if enabled).\n"
         );
         a->isPlaying = false;
         notify(a);
