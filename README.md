@@ -22,7 +22,7 @@ I also developed a small framework for my Theremin to work. The application's ta
 
 I used the [SDL2 library](http://libsdl.org) and the default C(++) bindings for the Tinkerforge sensors. There aren't any other dependencies (besides for the build process and for the brick ↔ computer connectivity).
 
-## Setup and Installation
+## Construction manual
 
 In the following, I will explain the process of building a "theremin" just like mine.
 
@@ -39,18 +39,23 @@ What you will need:
 * **A mini (not micro) USB cable** to connect the master brick with the computer
 * **Cupboard and duct tape** or something similar to improvise a pair of "gloves"  
 (to provide a flat surface for the sensors for better results, see below)
+* Boxing material at will
 
 ### Software
 
 I am developing and executing the program on Linux only, so I will describe the process for Linux systems. 
 However, it should not really be a problem to get it running on other platforms, as all used tools and frameworks are cross-platform (with more or less of a hassle).
 
+#### Dependencies
+
 Install `gcc`, `make`, `cmake` and the [SDL2](https://www.libsdl.org/) library (the core library with version >= 2.0.4 and the _ttf_ addition). Beware: SDL2.0.4 is not available yet in some repositories. For example, you have to build it from sources on the Raspberry Pi 3. This takes about half an hour but shouldn't be complicated otherwise:
 * download the sources from the homepage ([main library](https://www.libsdl.org/release/SDL2-2.0.5.zip), [ttf addition](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.zip)) and do the following steps, first for the main library and then for the addition:
     * unzip the archive and cd into the directory 
     * execute the commands `./configure`, `make`, and `sudo make install` (if something fails, look at the error description, you might be missing a dependency)
 
-Also, the Tinkerforge framework is needed, especially the [C(++) bindings for the Tinkerforge sensors](https://www.tinkerforge.com/de/doc/Software/API_Bindings_C.html).
+#### Tinkerforge software
+    
+The Tinkerforge framework is needed, especially the [C(++) bindings for the Tinkerforge sensors](https://www.tinkerforge.com/de/doc/Software/API_Bindings_C.html).
 In order to fetch and build those:
 * You can just execute `bash get_tinkerforge.sh` (hereby, the script assumes that the commands `wget` and `unzip` are available), which downloads and builds the bindings. 
 * Alternatively, you can manually download them [here](https://www.tinkerforge.com/en/doc/Downloads.html#downloads-bindings-examples) and extract them into a `tinkerforge` directory which needs to be at the same level as the `src` directory of the Theremin application. Inside the `tinkerforge/source` directory, execute the command `make` to compile the Tinkerforge bindings.
@@ -58,6 +63,8 @@ In order to fetch and build those:
 If you want to install the bindings globally, additionally execute `sudo make install` inside the `tinkerforge/source` directory. If you skip this, you might have to explicitly provide the library path when launching the application (see below).
 
 Also, install the daemon [brickd](https://www.tinkerforge.com/en/doc/Software/Brickd.html#brickd) which will enable communication between the computer and the brick, and the UI assistant [brickv](https://www.tinkerforge.com/en/doc/Software/Brickv.html#brickv) to initially fetch the UIDs of your sensors.
+
+#### Sensor setup
 
 Execute
 ```
@@ -69,6 +76,8 @@ and open `brickv`. You should now be able to connect to your master brick and se
 #define UID_VOLUME "xyz" // UID of ultrasonic distance sensor #2
 ```
 (It does not matter which of the sensors is assigned to which constant, as you can just swap them.)
+
+#### Compile and run
 
 You can now compile the Theremin application by executing
 ```
