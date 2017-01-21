@@ -34,7 +34,7 @@
 // "true" to output each sample on stdout 
 // (WARNING: very much data, do not pipe into a file
 // or it will fill your disk rather fast!)
-#define LOG_DATA true
+#define LOG_DATA false
 
 // "true" to output each new frequency to stdout
 #define LOG_FREQ false
