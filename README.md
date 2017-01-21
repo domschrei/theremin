@@ -20,7 +20,12 @@ I also developed a small framework for my Theremin to work. The application's ta
 
 ![The application's UI in action](img/ui.jpg)
 
-I am using C++ with the [SDL2](https://www.libsdl.org/) library (_core_ and _ttf_) and the Tinkerforge frameworks, especially the [C(++) bindings for the Tinkerforge sensors](https://www.tinkerforge.com/de/doc/Software/API_Bindings_C.html). No further dependencies are needed.
+## Dependencies
+
+I am using C++ with the [SDL2](https://www.libsdl.org/) library (the core library with version >= 2.0.4 and the _ttf_ addition) and the Tinkerforge frameworks, especially the [C(++) bindings for the Tinkerforge sensors](https://www.tinkerforge.com/de/doc/Software/API_Bindings_C.html). No further dependencies are needed. But beware: SDL2.0.4 is not available yet in some repositories. For example, you have to build it from sources on the Raspberry Pi 3. This takes about half an hour but shouldn't be a hassle otherwise:
+* download from the homepage ([main library](https://www.libsdl.org/release/SDL2-2.0.5.zip), [ttf addition](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.zip)) and do the following steps first for the main library and then for the addition:
+    * unzip and cd into the directory 
+    * execute the commands `./configure`, `make`, and `sudo make install`
 
 ## Setup and Installation
 
@@ -60,7 +65,7 @@ bash build.sh
 ```
 inside the application's root folder, which should let an executable called `theremin` appear.
 
-Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing `libtinkerforge.so`, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/ ./theremin`.) The USB foot switch should be plug-and-play.
+Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin`) The USB foot switch should be plug-and-play.
 
 ## Using and tweaking
 
@@ -88,6 +93,6 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 ### Configuration
 
-If your computer can't handle the program without stagnating or if you aren't happy with some of the default settings, you can look into the header file `src/config.h` where many things can be tweaked. To tune performance (and trade against better audio quality and/or lower latency), expecially the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted. The real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`), resulting in a better performance.
+If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, you can look into the header file `src/config.h` where many things can be tweaked. To tune performance (and trade against better audio quality and/or lower latency), especially he real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`). Additionally, the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted, resulting in a better performance as well.
 
 Please note that the program has to be recompiled (`bash build.sh`) so that the config changes take effect.
