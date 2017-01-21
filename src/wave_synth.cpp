@@ -9,7 +9,8 @@
  * Generates a single sample (i.e. data point) as a function of t
  * corresponding to the current frequency, volume and waveform.
  */
-uint8_t WaveSynth::wave(double t) {
+uint16_t WaveSynth::wave(double t)
+{
     
     set_wave_offset(t, &waveSmoothing);
     t += waveSmoothing.lastWaveAddOffset * waveSmoothing.wavePeriod;
@@ -53,9 +54,9 @@ uint8_t WaveSynth::wave(double t) {
     
     if (secondaryFrequency != 0.0) {
         double value2 = function(t2, period2, volume);
-        return (uint8_t) std::round((1 - secondaryVolumeShare) * value + secondaryVolumeShare * value2);
+        return (uint16_t) std::round((1 - secondaryVolumeShare) * value + secondaryVolumeShare * value2);
     } else {
-        return (uint8_t) std::round((1 - secondaryVolumeShare) * value);
+        return (uint16_t) std::round((1 - secondaryVolumeShare) * value);
     }
 }
 
@@ -188,15 +189,28 @@ void WaveSynth::update_frequency(float value) {
 
 /*
  * Gets a value [0,1] and maps it to a volume.
+ *
+ * However, this does not change the volume directly
+ * but just remembers the wished target value for the volume.
+ * Periodic calls to volume_tick() will then make the
+ * actual volume approach the target value.
  */
 void WaveSynth::update_volume(float value) {
-    float desiredVolume = MAX_VOLUME * value;
-    if (desiredVolume > volume) {
-        volume += std::min(VOLUME_DECAY, desiredVolume - volume);
+    volumeTarget = MAX_VOLUME * value;
+}
+
+/*
+ * Lets the volume approach the current target volume
+ * by a maximal difference of MAX_VOLUME_CHANGE_PER_TICK.
+ */
+void WaveSynth::volume_tick() {
+    double volumeDiff;
+    if (volumeTarget - volume > 0) {
+        volumeDiff = std::min(MAX_VOLUME_CHANGE_PER_TICK, volumeTarget - volume);
+    } else {
+        volumeDiff = std::max(-MAX_VOLUME_CHANGE_PER_TICK, volumeTarget - volume);
     }
-    if (desiredVolume < volume) {
-        volume -= std::min(VOLUME_DECAY, volume - desiredVolume);
-    }
+    volume += volumeDiff;
 }
 
 /*
@@ -329,7 +343,7 @@ double WaveSynth::plateau(double t, double period, double volume) {
     } else {
         value = (-1*(fmod(t, period) - period) / (period / 3.0));
     }
-    return (uint8_t) (volume * value);
+    return (volume * value);
 }
 
 double WaveSynth::triangle(double t, double period, double volume) {
@@ -340,12 +354,12 @@ double WaveSynth::triangle(double t, double period, double volume) {
     } else {
         value = 1 - ((fmod(t, period) - 0.5 * period) / (0.5 * period));
     }
-    return (uint8_t) (volume * value);
+    return (volume * value);
 }
 
 double WaveSynth::saw(double t, double period, double volume) {
     
-    return (uint8_t) (volume * (fmod(t, period) / period));
+    return (volume * (fmod(t, period) / period));
 }
 
 double WaveSynth::gauss(double t, double period, double volume) {
@@ -353,14 +367,14 @@ double WaveSynth::gauss(double t, double period, double volume) {
     double interval = 40;
     double x = interval * fmod(t, period) / period - (interval / 2);
     double value = std::exp(-(x*x));
-    return (uint8_t) (volume * value);
+    return (volume * value);
 }
 
 double WaveSynth::halfcirc(double t, double period, double volume) {
     
     double x = 2 * fmod(t, period) / period - 1;
     double value = std::sqrt(1 - x*x);
-    return (uint8_t) (volume * value);
+    return (volume * value);
 } 
 
 double WaveSynth::singleslit(double t, double period, double volume) {
@@ -368,5 +382,5 @@ double WaveSynth::singleslit(double t, double period, double volume) {
     double interval = 20;
     double x = interval * fmod(t, period) / period - (interval / 2);
     double value = std::sin(x) * std::sin(x) / (x * x);
-    return (uint8_t) (volume * value);
+    return (volume * value);
 }

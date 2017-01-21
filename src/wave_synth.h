@@ -13,7 +13,7 @@ public:
     // Basic audio properties
     double sample_rate = AUDIO_SAMPLE_RATE;
     double frequency = LOWEST_NOTE; // will be changed by 1st input
-    double volume = 255;
+    double volume = MAX_VOLUME;
     double period = sample_rate / frequency; // will be changed by 1st input
     
     struct WaveSmoothing {
@@ -48,10 +48,12 @@ private:
     
     int autotuneMode = AUTOTUNE_MODE;
     
+    double volumeTarget = volume;
+    
 // methods
     
 public:
-    uint8_t wave(double t);
+    uint16_t wave(double t);
     
     void align_frequency();
     void update_frequency(float value);
@@ -70,6 +72,7 @@ public:
     bool is_octave_offset();
     int get_waveform();
     int get_autotune_mode();
+    void volume_tick();
 
 private:
     void set_wave_offset(double t, WaveSmoothing* smoothing);

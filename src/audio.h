@@ -2,36 +2,31 @@
 #define THEREMIN_AUDIO_H
 
 #include <stdint.h>
-#include <mutex>
 #include <SDL2/SDL.h>
 
 class Audio {
 
-public:
-    static Audio* get_std_audio();
-    
+public:    
     void setup_audio();
     void start_playing();
-    void new_sample(uint8_t sample);
-    bool is_buffer_full();
+    bool new_sample(uint16_t sample);
     void reset();
-    void pause(bool should_pause);
     void set_volume(float volume_0_to_1);
+    bool is_buffer_full();
+    void set_exiting(bool isExiting);
+    bool is_playing();
 
-    Uint32 unreadSamples;
+private:
+    bool flush_buffer_to_sdl();
     
-    Uint8 *audio_pos;
-    int bufferSize;
-    Uint8 buffer[AUDIO_BUFFER_SIZE];
-    int bufferIdx;
+    int deviceId;
     
-    int volume = SDL_MIX_MAXVOLUME;
-    
-    // for critical section with audio buffer manipulation
-    std::mutex mutex;
-    
-    bool isPlaying = false;
     bool exiting = false;
+    bool isPlaying = false;
+    
+    int bufferSize;
+    Uint16 buffer[AUDIO_BUFFER_SIZE];
+    int bufferIdx;
 };
     
 #endif

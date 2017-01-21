@@ -1,92 +1,18 @@
 #include <iostream>
-#include <cmath>
-#include <fstream>
-#include <numeric>
-#include <functional>
-#include <string> 
-#include <vector>
 
 #include "config.h"
 #include "audio.h"
 
-/* 
- * Singleton-like object (because a static callback function is needed)
- */
-Audio stdAudio;
-Audio* Audio::get_std_audio() {
-    return &stdAudio;
-}
-
-/* 
- * Simple Mutex implementation for audio buffer manipulation
- */
-void wait(Audio* a) {
-    // wait for critical section to become accessible    
-    a->mutex.lock();
-}
-void notify(Audio* a) {
-    // leave critical section
-    a->mutex.unlock();
-}
-
-/* 
- * The audio function callback 
- */
-void fill_audio(void *udata, Uint8 *stream, int len) {
-
-    Audio *a = Audio::get_std_audio();
-
-    if (a->exiting) {
-        return;
-    }
-    
-    wait(a);
-    
-    // Sanity checks
-    if (len != AUDIO_BUFFER_SIZE / 2) {
-        fprintf(stderr, "Audio: Invalid read length of %i; should be %i.\n"
-        "Please make sure that the buffer size (AUDIO_BUFFER_SIZE)\n"
-        "is compliant with the advertised read size (AUDIO_BUFFER_ADVERTISED_READ_SIZE).\n", 
-        len, AUDIO_BUFFER_SIZE / 2);
-        exit(1);
-    }
-    if ( a->unreadSamples < len ) {
-        fprintf(stderr, "Audio Error: Not enough samples left to read.\n"
-            "Maybe the computer is overburdened and you should stop\n"
-            "other processes, optimize this program's compilation,\n"
-            "or disable the graphical real-time screen (if enabled).\n"
-        );
-        a->isPlaying = false;
-        notify(a);
-        return;
-    }
-    
-    // Moves start index of buffer reading, if neccessary
-    int idx = len;
-    if (a->audio_pos >= &(a->buffer[a->bufferSize])) {
-        a->audio_pos = &(a->buffer[0]);
-        idx = 0;
-    }   
-    
-    // Mix data
-    len = ( len > a->unreadSamples ? a->unreadSamples : len );
-    //SDL_MixAudio(stream, a->audio_pos, len, a->volume);
-    SDL_memcpy(stream, a->audio_pos, len); 
-    
-    // Update data structure for next read / write
-    a->audio_pos += len;
-    a->unreadSamples -= len;
-    
-    notify(a);
-}
-
 /*
- * Volume setter, with the new volume given as a float 
- * between 0 (muted) and 1 (max).
+ * Convert between some amount of samples
+ * and the corresponding amount of bytes.
+ * 1 Sample = 16 bit = 2 byte
  */
-void Audio::set_volume(float volume_0_to_1) {
-    
-    volume = std::round(SDL_MIX_MAXVOLUME * volume_0_to_1);
+int bytes_to_samples(int bytes) {
+    return bytes / 2;
+}
+int samples_to_bytes(int samples) {
+    return samples * 2;
 }
 
 /*
@@ -96,25 +22,20 @@ void Audio::setup_audio() {
     
     bufferIdx = 0;
     bufferSize = AUDIO_BUFFER_SIZE;
-
-    /* Initialize defaults, Video and Audio 
-    if((SDL_Init(SDL_INIT_AUDIO) == -1)) { 
-        printf("Could not initialize SDL audio: %s.\n", SDL_GetError());
-        exit(-1);
-    }*/
     
-    SDL_AudioSpec wanted;
+    SDL_AudioSpec wanted, having;
 
     /* Set the audio format */
     wanted.freq = AUDIO_SAMPLE_RATE;
-    wanted.format = AUDIO_U8;
+    wanted.format = AUDIO_U16;
     wanted.channels = 1;    /* 1 = mono, 2 = stereo */
-    wanted.samples = AUDIO_BUFFER_ADVERTISED_READ_SIZE;
-    wanted.callback = fill_audio;
+    wanted.samples = AUDIO_BUFFER_SIZE;
+    wanted.callback = NULL; //fill_audio;
     wanted.userdata = NULL;
 
     /* Open the audio device, forcing the desired format */
-    if ( SDL_OpenAudio(&wanted, NULL) < 0 ) {
+    deviceId = SDL_OpenAudioDevice(NULL, 0, &wanted, &having, 0);
+    if (deviceId < 0) {
         fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
         exit(1);
     }
@@ -126,71 +47,91 @@ void Audio::setup_audio() {
  */
 void Audio::start_playing() {
     
-    wait(this);
-    
-    audio_pos = &buffer[0];
-    /* Let the callback function play the audio */
-    SDL_PauseAudio(0);
-    std::cerr << "Started playing." << std::endl;
+    std::cout << "Started playing." << std::endl;
     isPlaying = true;
     
-    notify(this);
+    flush_buffer_to_sdl();
 }
 
 /*
  * Adds a single sample to the current audio buffer.
+ * Also flushes the audio buffer to SDL when it is full.
  */
-void Audio::new_sample(uint8_t sample) {
+bool Audio::new_sample(uint16_t sample) {
+            
+    bool played;
     
-    wait(this);
+    if (bufferIdx < bufferSize) {
+        buffer[bufferIdx] = sample;
+        
+        if (LOG_DATA) {
+            std::cout << " " << (int) buffer[bufferIdx] << std::endl;
+        }
+        bufferIdx++;
+        played = true;
+    }
     
     if (bufferIdx == bufferSize) {
-        bufferIdx = 0;
+        played = flush_buffer_to_sdl();
     }
     
-    buffer[bufferIdx] = sample;
+    return played;
+}
+
+/*
+ * If the buffer is full and if the SDL-internal queue of audio samples
+ * is empty, the buffer data will be put into the queue.
+ * Afterwards, the buffer can be overwritten with new data.
+ * Returns true iff the buffer has been flushed.
+ */
+bool Audio::flush_buffer_to_sdl() {
     
-    if (LOG_DATA) {
-        std::cout << " " << (int) buffer[bufferIdx] << std::endl;
+    if (isPlaying && bytes_to_samples(SDL_GetQueuedAudioSize(deviceId)) == 0) {
+        
+        int errCode = SDL_QueueAudio(deviceId, &buffer[0], 
+                                     samples_to_bytes(bufferSize));
+        if (errCode != 0) {
+            fprintf(stderr, "Couldn't play audio: %s\n", SDL_GetError());
+            exit(1);
+        } else {
+            
+            SDL_PauseAudioDevice(deviceId, 0);
+            bufferIdx = 0;
+            return true;
+        }
+        
     }
-    bufferIdx++;
-    unreadSamples++;
-    
-    notify(this);
+    return false;
 }
 
 /*
  * Checks whether the audio buffer is full.
  */
 bool Audio::is_buffer_full() {
-    return unreadSamples == AUDIO_BUFFER_SIZE;
-}
-
-/*
- * Pauses playing, when should_pause is true.
- * Continues playing, else.
- */
-void Audio::pause(bool should_pause) {
-    
-    int pauseInt = should_pause ? 1 : 0;
-    
-    wait(this);
-    
-    SDL_PauseAudio(pauseInt);
-    
-    notify(this);
+    return bufferIdx == bufferSize;
 }
 
 /*
  * Completely clears the audio buffer.
  */
 void Audio::reset() {
-    
-    wait(this);
-    
+        
     bufferIdx = 0;
-    unreadSamples = 0;
     memset(&buffer[0], 0, sizeof(buffer));
-    
-    notify(this);
+}
+
+/*
+ * Tell the audio object if it should prepare itself
+ * for exiting.
+ */
+void Audio::set_exiting(bool isExiting) {
+    this->exiting = isExiting;
+}
+
+/*
+ * Returns true if the program is playing
+ * audio at the moment.
+ */
+bool Audio::is_playing() {
+    return isPlaying;
 }

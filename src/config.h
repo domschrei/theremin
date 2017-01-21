@@ -34,14 +34,16 @@
 // "true" to output each sample on stdout 
 // (WARNING: very much data, do not pipe into a file
 // or it will fill your disk rather fast!)
-#define LOG_DATA false
+#define LOG_DATA true
 
 // "true" to output each new frequency to stdout
 #define LOG_FREQ false
 
 // Maximal possible volume to play at
-// Valid values are 1..255
-#define MAX_VOLUME 255
+// Valid values are 1..(2^bitdepth)-1,
+// where the bitdepth is hardcoded to 16-bit unsigned
+// => Valid values are 1..65535
+#define MAX_VOLUME 65535
 
 // The input device (see INPUT_* inside const.h)
 #define INPUT_DEVICE INPUT_DEVICE_MOUSE
@@ -55,15 +57,9 @@
 // worse audio quality
 #define AUDIO_SAMPLE_RATE 16384
 
-// Size of the audio ring buffer
-// Must be exactly twice as large as the amount of
-// samples SDL reads each time
-#define AUDIO_BUFFER_SIZE 1024
-
-// Advertised size of what SDL should read on each take
-// Must be AUDIO_BUFFER_SIZE on 64-bit systems or
-// AUDIO_BUFFER_SIZE / 2 on 32-bit systems
-#define AUDIO_BUFFER_ADVERTISED_READ_SIZE 1024
+// Size of the application's audio buffer.
+// Higher values should mean 
+#define AUDIO_BUFFER_SIZE 512
 
 // Calibration of sensors; the MIN and MAX values
 // represent lower and upper limits for the 
@@ -78,7 +74,7 @@
 // Determines by how many ticks the volume will be decreased
 // each time there is no valid sensor data for it
 // Must be a floating-point number
-#define VOLUME_DECAY 7.0
+#define MAX_VOLUME_CHANGE_PER_TICK 30.0
 
 // Frequencies of specific application tasks;
 // each number means that the corresponding task is done 

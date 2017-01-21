@@ -8,26 +8,12 @@
 
 WaveSynth synth;
 UserInterface userInterface;
-Audio* audio;
+Audio audio;
 SensorInput sensorInput;
-
-void print_instructions() {
-    
-    if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
-        std::cout << "Use the Tinkerforge distance sensors to control frequency and volume." << std::endl;
-    } else if (INPUT_DEVICE == INPUT_DEVICE_MOUSE) {
-        std::cout << "Use your mouse cursor:\n" << std::endl;
-        std::cout << "      Freq+      " << std::endl;
-        std::cout << "        ^        " << std::endl;
-        std::cout << "Vol- <     > Vol+" << std::endl;
-        std::cout << "        v        " << std::endl;
-        std::cout << "      Freq-      " << std::endl;
-    }
-}
 
 void finish() {
     
-    audio->exiting = true;
+    audio.set_exiting(true);
     
     if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
         sensorInput.finish();
@@ -113,10 +99,14 @@ void main_loop(int *t) {
     }
     
     /*
-     * Create a new audio sample corresponding to the current audio attributes
+     * Create a new audio sample and sacrifice it to the SDL audio gods.
+     * If the gods decline the sacrifice, move one step backwards
+     * to keep the waveform continuous.
      */
-    if (!audio->is_buffer_full()) {
-        audio->new_sample(synth.wave(*t));
+    if (audio.new_sample(synth.wave(*t))) {
+        // Update the current volume 
+        // in direction of the current volume target
+        synth.volume_tick();
     } else {
         (*t)--;
     }
@@ -125,8 +115,8 @@ void main_loop(int *t) {
      * Start playing if the audio buffer is full for the first time, 
      * or after it stopped working
      */
-    if (audio->is_buffer_full() && !audio->isPlaying) {
-        audio->start_playing();
+    if (audio.is_buffer_full() && !audio.is_playing()) {
+        audio.start_playing();
     }
     
     /*
@@ -153,8 +143,7 @@ int main(int argc, const char* argv[])
     }
     
     // Audio output stuff
-    audio = Audio::get_std_audio();
-    audio->setup_audio();
+    audio.setup_audio();
     
     // Program exit callback
     atexit(finish);
