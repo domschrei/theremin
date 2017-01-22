@@ -27,8 +27,19 @@ uint16_t WaveSynth::wave(double t)
     // Apply tremolo effect (if enabled)
     double volumeToUse;
     if (tremolo) {
+        if (tremoloOffset == 0.0) {
+            tremoloOffset = t;
+        }
+        // Add a sine wave to the volume in order to modulate it
         volumeToUse = volume + TREMOLO_INTENSITY * volume 
-            * std::sin(t * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY));
+            * std::sin(t * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY)
+            - tremoloOffset * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY));
+        
+        // If tremolo is to fade out, 
+        // check if now is an appropriate time to smoothly stop the effect
+        if (tremoloExiting && std::abs(volumeToUse - volume) <= MAX_VOLUME / 1000.0) {
+            tremolo = false;
+        }
     } else {
         volumeToUse = volume;
     }
@@ -111,6 +122,22 @@ void WaveSynth::set_octave_offset(bool offset) {
         //frequency /= 2;
     }
     update_frequency(-1);
+}
+
+/*
+ * Starts or stops the tremolo effect.
+ * Stopping does not take plase immediately but at the next 
+ * appropriate sample such that there will be no cracking.
+ */
+void WaveSynth::set_tremolo(bool shouldTremolo) {
+    
+    if (shouldTremolo) {
+        tremolo = true;
+        tremoloOffset = 0.0;
+        tremoloExiting = false;
+    } else {
+        tremoloExiting = true;
+    }
 }
 
 /*
@@ -261,6 +288,10 @@ double WaveSynth::get_normalized_frequency(double f) {
 
 bool WaveSynth::is_octave_offset() {
     return octaveOffset;
+}
+
+bool WaveSynth::is_tremolo_enabled() {
+    return tremolo;
 }
 
 int WaveSynth::get_waveform() {

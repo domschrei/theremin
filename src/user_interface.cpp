@@ -9,8 +9,8 @@
  */
 bool* UserInterface::poll_events()
 {    
-    static bool results[13];
-    for (int i = 0; i < 13; i++) {
+    static bool results[NUM_INPUTS];
+    for (int i = 0; i < NUM_INPUTS; i++) {
         results[i] = false;
     }
     SDL_Event event;
@@ -23,28 +23,11 @@ bool* UserInterface::poll_events()
          * at the same time slice will negate each other.
          */
         case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_a) {
-                results[INPUT_PRESS_A] = true;
-            } else if (event.key.keysym.sym == SDLK_b) {
-                results[INPUT_PRESS_B] = true;
-            } else if (event.key.keysym.sym == SDLK_c) {
-                results[INPUT_PRESS_C] = true;
-            } else if (event.key.keysym.sym == SDLK_1) {
-                results[INPUT_PRESS_1] = true;
-            } else if (event.key.keysym.sym == SDLK_2) {
-                results[INPUT_PRESS_2] = true;
-            } else if (event.key.keysym.sym == SDLK_3) {
-                results[INPUT_PRESS_3] = true;
+            for (int input = 0; input < NUM_INPUTS; input++) {
+                if ((int) event.key.keysym.sym == INPUTS[input]) {
+                    results[input] = true;
+                } 
             }
-            break;
-        case SDL_KEYUP:
-            if (event.key.keysym.sym == SDLK_a) {
-                results[INPUT_RELEASE_A] = true;
-            } else if (event.key.keysym.sym == SDLK_b) {
-                results[INPUT_RELEASE_B] = true;
-            } else if (event.key.keysym.sym == SDLK_c) {
-                results[INPUT_RELEASE_C] = true;
-            } 
             break;
         case SDL_MOUSEMOTION:
             mouse_x = event.motion.x;

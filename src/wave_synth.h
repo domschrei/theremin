@@ -37,11 +37,13 @@ private:
     double freqAis = freqA * root12Of2; // next half-tone next to standard pitch
     double ratioInLog = std::log(freqAis) * M_LOG2E 
             - std::log(freqA) * M_LOG2E; // logarithmic ratio between half-tones
-    //double lastFrequency = frequency;
-
+    
     double mutedVolume = 0;
     bool octaveOffset = false;
+    
     bool tremolo = TREMOLO_ENABLED;
+    bool tremoloExiting = false;
+    double tremoloOffset = 0.0;
     
     double secondaryFrequency;
     double secondaryVolumeShare = 0.4;
@@ -70,6 +72,7 @@ public:
     double get_normalized_frequency(double f);
     int get_nearest_lower_note_index();
     bool is_octave_offset();
+    bool is_tremolo_enabled();
     int get_waveform();
     int get_autotune_mode();
     void volume_tick();

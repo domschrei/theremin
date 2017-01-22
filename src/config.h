@@ -34,7 +34,7 @@
 // "true" to output each sample on stdout 
 // (WARNING: very much data, do not pipe into a file
 // or it will fill your disk rather fast!)
-#define LOG_DATA true
+#define LOG_DATA false
 
 // "true" to output each new frequency to stdout
 #define LOG_FREQ false
@@ -46,7 +46,7 @@
 #define MAX_VOLUME 65535
 
 // The input device (see INPUT_* inside const.h)
-#define INPUT_DEVICE INPUT_DEVICE_MOUSE
+#define INPUT_DEVICE INPUT_DEVICE_SENSOR
 
 // The default autotune mode
 // See AUTOTUNE_* inside const.h
@@ -81,12 +81,41 @@
 
 // The tremolo intensity
 // Must be a floating-point number between 0.0 and 0.5
-#define TREMOLO_INTENSITY 0.5
+#define TREMOLO_INTENSITY 0.3
 
 // The frequency of tremolo (i.e. how often
 // the volume is being modulated per second)
 // Must be greater than zero
 #define TREMOLO_FREQUENCY 7
+
+// The triggerable actions
+// An array of values in the form ACTION_*
+// without duplicates
+constexpr static const int ACTIONS[] = {
+    ACTION_SUSTAINED_NOTE, 
+    ACTION_OCTAVE_UP, 
+    ACTION_TREMOLO, 
+    ACTION_AUTOTUNE_NONE, 
+    ACTION_AUTOTUNE_SMOOTH, 
+    ACTION_AUTOTUNE_FULL,
+    ACTION_CHANGE_WAVEFORM
+};
+
+// The inputs to be mapped to the corresponding
+// action (see ACTIONS)
+// An array of SDL keycodes of the length NUM_INPUTS
+constexpr const static int INPUTS[] = {
+    SDLK_a, 
+    SDLK_b, 
+    SDLK_c, 
+    SDLK_1, 
+    SDLK_2, 
+    SDLK_3,
+    SDLK_w
+};
+
+// The length of the array INPUTS
+#define NUM_INPUTS 7
 
 // Frequencies of specific application tasks;
 // each number means that the corresponding task is done 

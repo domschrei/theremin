@@ -1,6 +1,8 @@
 #ifndef THEREMIN_CONST_H
 #define THEREMIN_CONST_H
 
+#include <SDL2/SDL_keycode.h>
+
 // // ****************************************
 // // CONSTANTS
 // // ****************************************
@@ -107,5 +109,14 @@ static const char* NOTE_NAMES[] = {"c0","c#0","d0","d#0","e0","f0","f#0","g0","g
 #define AUTOTUNE_NONE 1
 #define AUTOTUNE_SMOOTH 2
 #define AUTOTUNE_FULL 3
+
+// Triggerable actions
+#define ACTION_SUSTAINED_NOTE 1
+#define ACTION_OCTAVE_UP 2
+#define ACTION_CHANGE_WAVEFORM 3
+#define ACTION_AUTOTUNE_NONE 4
+#define ACTION_AUTOTUNE_SMOOTH 5
+#define ACTION_AUTOTUNE_FULL 6
+#define ACTION_TREMOLO 7
 
 #endif

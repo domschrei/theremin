@@ -65,37 +65,52 @@ void main_loop(int *t) {
         */
         bool* input_keys = userInterface.poll_events();
         
-        // Adds a second tone to the audio output, if pressed
-        if (input_keys[UserInterface::INPUT_PRESS_A]) {
-            if (!synth.is_secondary_frequency_active()) {
-                synth.set_secondary_frequency(synth.frequency);
-            } else {
-                synth.set_secondary_frequency(0.0);
+        for (int inputId = 0; inputId < NUM_INPUTS; inputId++) {
+            if (input_keys[inputId]) {
+                switch (ACTIONS[inputId]) {
+                    
+                    // Adds a second tone to the audio output, if pressed
+                    case ACTION_SUSTAINED_NOTE:
+                        if (!synth.is_secondary_frequency_active()) {
+                            synth.set_secondary_frequency(synth.frequency);
+                        } else {
+                            synth.set_secondary_frequency(0.0);
+                        }
+                        break;
+                    
+                    // Octaves the audio upwards, if pressed
+                    case ACTION_OCTAVE_UP:
+                        if (!synth.is_octave_offset()) {
+                            synth.set_octave_offset(true);
+                        } else {
+                            synth.set_octave_offset(false);
+                        }
+                        break;
+                    
+                    // Switches to the next waveform on each press
+                    case ACTION_CHANGE_WAVEFORM:
+                        synth.switch_waveform();
+                        break;
+                    
+                    // Autotune settings
+                    case ACTION_AUTOTUNE_NONE:
+                        synth.set_autotune_mode(AUTOTUNE_NONE);
+                        break;
+                    case ACTION_AUTOTUNE_SMOOTH:
+                        synth.set_autotune_mode(AUTOTUNE_SMOOTH);
+                        break;
+                    case ACTION_AUTOTUNE_FULL:
+                        synth.set_autotune_mode(AUTOTUNE_FULL);
+                        break;
+                    
+                    // Toggle tremolo
+                    case ACTION_TREMOLO:
+                        synth.set_tremolo(!synth.is_tremolo_enabled());
+                        break;
+                }
             }
         }
         
-        // Octaves the audio upwards, if pressed
-        if (input_keys[UserInterface::INPUT_PRESS_B]) {
-            if (!synth.is_octave_offset()) {
-                synth.set_octave_offset(true);
-            } else {
-                synth.set_octave_offset(false);
-            }
-        }
-        
-        // Switches to the next waveform on each press
-        if (input_keys[UserInterface::INPUT_PRESS_C]) {
-            synth.switch_waveform();
-        }
-        
-        // Autotune settings
-        if (input_keys[UserInterface::INPUT_PRESS_1]) {
-            synth.set_autotune_mode(AUTOTUNE_NONE);
-        } else if (input_keys[UserInterface::INPUT_PRESS_2]) {
-            synth.set_autotune_mode(AUTOTUNE_SMOOTH);
-        } else if (input_keys[UserInterface::INPUT_PRESS_3]) {
-            synth.set_autotune_mode(AUTOTUNE_FULL);
-        }
     }
     
     /*
