@@ -34,6 +34,8 @@ uint16_t WaveSynth::wave(double t)
         volumeToUse = volume + TREMOLO_INTENSITY * volume 
             * std::sin(t * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY)
             - tremoloOffset * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY));
+        volumeToUse = std::min(volumeToUse, (double) MAX_VOLUME);
+        volumeToUse = std::max(volumeToUse, 0.0);
         
         // If tremolo is to fade out, 
         // check if now is an appropriate time to smoothly stop the effect
