@@ -41,7 +41,7 @@ private:
 
     double mutedVolume = 0;
     bool octaveOffset = false;
-    bool vibrate = false;
+    bool tremolo = TREMOLO_ENABLED;
     
     double secondaryFrequency;
     double secondaryVolumeShare = 0.4;
@@ -60,7 +60,7 @@ public:
     void update_volume(float value);
     void toggle_mute();
     void set_octave_offset(bool offset);
-    void set_vibrate(bool shouldVibrate);
+    void set_tremolo(bool shouldTremolo);
     void switch_waveform();
     void set_secondary_frequency(double secondaryFrequency);
     bool is_secondary_frequency_active();

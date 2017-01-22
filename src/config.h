@@ -34,7 +34,7 @@
 // "true" to output each sample on stdout 
 // (WARNING: very much data, do not pipe into a file
 // or it will fill your disk rather fast!)
-#define LOG_DATA false
+#define LOG_DATA true
 
 // "true" to output each new frequency to stdout
 #define LOG_FREQ false
@@ -75,6 +75,18 @@
 // each time there is no valid sensor data for it
 // Must be a floating-point number
 #define MAX_VOLUME_CHANGE_PER_TICK 30.0
+
+// "true" to enable tremolo by default
+#define TREMOLO_ENABLED false
+
+// The tremolo intensity
+// Must be a floating-point number between 0.0 and 0.5
+#define TREMOLO_INTENSITY 0.5
+
+// The frequency of tremolo (i.e. how often
+// the volume is being modulated per second)
+// Must be greater than zero
+#define TREMOLO_FREQUENCY 7
 
 // Frequencies of specific application tasks;
 // each number means that the corresponding task is done 

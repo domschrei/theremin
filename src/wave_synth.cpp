@@ -11,16 +11,26 @@
  */
 uint16_t WaveSynth::wave(double t)
 {
-    
+    // Find correct position of primary wave
     set_wave_offset(t, &waveSmoothing);
     t += waveSmoothing.lastWaveAddOffset * waveSmoothing.wavePeriod;
     
+    // Find correct position of secondary wave (if enabled)
     double t2 = 0.0;
     double period2;
     if (secondaryFrequency != 0.0) {
         set_wave_offset(t, &waveSmoothingSecondary);
         period2 = waveSmoothingSecondary.wavePeriod;
         t2 = t + waveSmoothingSecondary.lastWaveAddOffset * period2;
+    }
+    
+    // Apply tremolo effect (if enabled)
+    double volumeToUse;
+    if (tremolo) {
+        volumeToUse = volume + TREMOLO_INTENSITY * volume 
+            * std::sin(t * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY));
+    } else {
+        volumeToUse = volume;
     }
     
     auto function = sin;
@@ -50,10 +60,10 @@ uint16_t WaveSynth::wave(double t)
         exit(1);
     }
     
-    double value = function(t, period, volume);
+    double value = function(t, period, volumeToUse);
     
     if (secondaryFrequency != 0.0) {
-        double value2 = function(t2, period2, volume);
+        double value2 = function(t2, period2, volumeToUse);
         return (uint16_t) std::round((1 - secondaryVolumeShare) * value + secondaryVolumeShare * value2);
     } else {
         return (uint16_t) std::round((1 - secondaryVolumeShare) * value);
