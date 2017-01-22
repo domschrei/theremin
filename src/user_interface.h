@@ -38,10 +38,8 @@ private:
     
     const char* HELP_TEXT_1 = "Use the sensors to control";
     const char* HELP_TEXT_2 = "frequency and volume.";
-    const char* HELP_TEXT_3 = "Press {a,b,c} to trigger";
-    const char* HELP_TEXT_4 = "the corresponding pedals.";
-    const char* HELP_TEXT_5 = "Press {1,2,3} to set an";
-    const char* HELP_TEXT_6 = "autotune mode.";
+    const char* HELP_TEXT_3 = "Press the corresponding keys";
+    const char* HELP_TEXT_4 = "to trigger the effects.";
 };
 
 #endif

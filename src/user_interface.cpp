@@ -67,30 +67,36 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
     double freqNormalized = synth->get_normalized_frequency(synth->frequency);
     draw_progress(progressFrequency, freqNormalized, false);
         
-    // Labels of pedals
+    // Labels of effects
     const char* textA;
     const char* textB;
     const char* textC;
+    const char* textD;
     if (synth->is_secondary_frequency_active()) {
-        textA = "Pedal A: Playing 2nd note";
+        textA = "Playing 2nd note";
     } else {
-        textA = "Pedal A: Playing single note";
+        textA = "Playing single note";
     }
     if (synth->is_octave_offset()) {
-        textB = "Pedal B: All notes octaved";
+        textB = "All notes octaved";
     } else {
-        textB = "Pedal B: All notes regular";
+        textB = "All notes regular";
     }
-    // Pedal C: display index and name of the current wave
+    // Display index and name of the current wave
     std::string waveform = std::to_string(synth->get_waveform());
-    std::string waveText = std::string("Pedal C: Wave ") + waveform;
-    waveText = waveText + " \"";
+    std::string waveText = std::string("Wave: #") + waveform;
+    waveText = waveText + " (";
     waveText = waveText + WAVE_NAMES[synth->get_waveform()];
-    waveText = waveText + "\"";
+    waveText = waveText + ")";
     textC = waveText.c_str();
+    if (synth->is_tremolo_enabled()) {
+        textD = "Tremolo enabled";
+    } else {
+        textD = "Tremolo disabled";
+    }
     // Autotune "pedal"
     std::string autotuneIdx = std::to_string(synth->get_autotune_mode());
-    std::string autotuneText = std::string("Autotune: ") + autotuneIdx;
+    std::string autotuneText = std::string("Autotune: #") + autotuneIdx;
     if (synth->get_autotune_mode() == AUTOTUNE_NONE) {
         autotuneText += std::string(" (none)");
     } else if (synth->get_autotune_mode() == AUTOTUNE_SMOOTH) {
@@ -101,10 +107,11 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
     const char* textAutotune = autotuneText.c_str();
         
     // Draw pedals
-    draw_pedal(textA, 350, 30, synth->is_secondary_frequency_active());
-    draw_pedal(textB, 350, 70, synth->is_octave_offset());
-    draw_pedal(textC, 350, 110, lastWaveform != synth->get_waveform());
-    draw_pedal(textAutotune, 350, 160, lastAutotuneMode != synth->get_autotune_mode());
+    draw_pedal(textA, 350, 15, synth->is_secondary_frequency_active());
+    draw_pedal(textB, 350, 55, synth->is_octave_offset());
+    draw_pedal(textD, 350, 95, synth->is_tremolo_enabled());
+    draw_pedal(textC, 350, 135, lastWaveform != synth->get_waveform());
+    draw_pedal(textAutotune, 350, 175, lastAutotuneMode != synth->get_autotune_mode());
     lastWaveform = synth->get_waveform();
     lastAutotuneMode = synth->get_autotune_mode();
        
@@ -145,12 +152,10 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
     draw_text(NOTE_NAMES[noteIdx], 195, 90, noteColor, sansLarge);
         
     // Help text
-    draw_text(HELP_TEXT_1, 350, 220, textColor, sans);
-    draw_text(HELP_TEXT_2, 350, 240, textColor, sans);
-    draw_text(HELP_TEXT_3, 350, 270, textColor, sans);
-    draw_text(HELP_TEXT_4, 350, 290, textColor, sans);
-    draw_text(HELP_TEXT_5, 350, 320, textColor, sans);
-    draw_text(HELP_TEXT_6, 350, 340, textColor, sans);
+    draw_text(HELP_TEXT_1, 350, 270, textColor, sans);
+    draw_text(HELP_TEXT_2, 350, 290, textColor, sans);
+    draw_text(HELP_TEXT_3, 350, 320, textColor, sans);
+    draw_text(HELP_TEXT_4, 350, 340, textColor, sans);
         
     // Publish rendered surface
     SDL_RenderPresent(renderer);
