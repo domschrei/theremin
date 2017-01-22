@@ -5,7 +5,7 @@
 /*
  * Returns an array of bools. At index i of this array,
  * the bool determines whether the input with ID i has
- * occured (see UserInterface::INPUT_*).
+ * occured (see the constants INPUT_*).
  */
 bool* UserInterface::poll_events()
 {    
@@ -18,11 +18,9 @@ bool* UserInterface::poll_events()
     while (SDL_PollEvent(&event)) {
         
         switch (event.type) {
-        /*
-         * This includes a hotfix such that a release and press of a key
-         * at the same time slice will negate each other.
-         */
+
         case SDL_KEYDOWN:
+            // Search for an input which has been triggered
             for (int input = 0; input < NUM_INPUTS; input++) {
                 if ((int) event.key.keysym.sym == INPUTS[input]) {
                     results[input] = true;
