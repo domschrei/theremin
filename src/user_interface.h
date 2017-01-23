@@ -4,6 +4,7 @@
 #include "SDL2/SDL.h"
 #include <SDL2/SDL_ttf.h>
 
+#include "const.h"
 #include "configuration.h"
 #include "wave_synth.h"
 

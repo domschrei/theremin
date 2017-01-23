@@ -22,13 +22,13 @@ void Audio::setup_audio(Configuration* cfg) {
     
     bufferIdx = 0;
     this->cfg = cfg;
-    bufferSize = cfg->i("buffer_size");
+    bufferSize = cfg->i(BUFFER_SIZE);
     buffer = new Uint16[bufferSize];
     
     SDL_AudioSpec wanted, having;
 
     /* Set the audio format */
-    wanted.freq = cfg->i("sample_rate");
+    wanted.freq = cfg->i(SAMPLE_RATE);
     wanted.format = AUDIO_U16;
     wanted.channels = 1;    /* 1 = mono, 2 = stereo */
     wanted.samples = bufferSize;
@@ -69,7 +69,7 @@ bool Audio::new_sample(uint16_t sample) {
     if (bufferIdx < bufferSize) {
         buffer[bufferIdx] = sample;
         
-        if (cfg->b("log_data")) {
+        if (cfg->b(LOG_DATA)) {
             std::cout << " " << (int) buffer[bufferIdx] << std::endl;
         }
         bufferIdx++;

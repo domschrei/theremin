@@ -25,7 +25,7 @@ void finish() {
     
     audio.set_exiting(true);
     
-    if (cfg->str("input_device") == "sensor") {
+    if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_SENSOR) {
         sensorInput.finish();
         std::cout << "Finished sensor connection." << std::endl;
     }
@@ -40,7 +40,7 @@ void main_loop(int *t) {
     /*
      * Process input to adjust volume and frequency
      */
-    if (cfg->str("input_device") == "mouse") {
+    if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_MOUSE) {
         
         // Grab input by mouse cursor
         if (*t % periodInputMouse == 0) {
@@ -50,7 +50,7 @@ void main_loop(int *t) {
             synth.update_volume(x_value);
         }
         
-    } else if (cfg->str("input_device") == "sensor") {
+    } else if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_SENSOR) {
         
         // Grab input by Tinkerforge sensors
         if (*t % periodInputSensor == 0) {
@@ -136,7 +136,7 @@ void main_loop(int *t) {
     /*
      * Refresh the drawn surface at some times, if enabled
      */
-    if (cfg->b("realtime_display") && (*t % periodDisplayRefresh == 0)) {
+    if (cfg->b(REALTIME_DISPLAY) && (*t % periodDisplayRefresh == 0)) {
         userInterface.refresh_surface(&synth);
     }
     
@@ -152,18 +152,18 @@ int main(int argc, const char* argv[])
     cfg->load();
     
     // Calculate periods for various tasks
-    int sampleRate = cfg->i("sample_rate");
-    periodInputMouse = sampleRate / cfg->i("task_frequency_input_mouse");
-    periodInputSensor = sampleRate / cfg->i("task_frequency_input_sensor");
-    periodInputGeneral = sampleRate / cfg->i("task_frequency_input_general");
-    periodDisplayRefresh = sampleRate / cfg->i("task_frequency_display_refresh");
+    int sampleRate = cfg->i(SAMPLE_RATE);
+    periodInputMouse = sampleRate / cfg->i(TASK_FREQUENCY_INPUT_MOUSE);
+    periodInputSensor = sampleRate / cfg->i(TASK_FREQUENCY_INPUT_SENSOR);
+    periodInputGeneral = sampleRate / cfg->i(TASK_FREQUENCY_INPUT_GENERAL);
+    periodDisplayRefresh = sampleRate / cfg->i(TASK_FREQUENCY_DISPLAY_REFRESH);
     
     // Basic input (i.e. mouse and keys / footswitch)
     // and graphical output
     userInterface.setup(cfg);
     
     // Sensor input
-    if (cfg->str("input_device") == "sensor") {
+    if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_SENSOR) {
         sensorInput.setup_sensors(cfg);
     }
     

@@ -14,11 +14,11 @@ void SensorInput::setup_sensors(Configuration* cfg) {
     ipcon_create(&ipcon);
 
     // Create device object
-    distance_us_create(&distanceFrequency, cfg->str("uid_frequency").c_str(), &ipcon);
-    distance_us_create(&distanceVolume, cfg->str("uid_volume").c_str(), &ipcon);
+    distance_us_create(&distanceFrequency, cfg->str(UID_FREQUENCY).c_str(), &ipcon);
+    distance_us_create(&distanceVolume, cfg->str(UID_VOLUME).c_str(), &ipcon);
 
     // Connect to brickd
-    if(ipcon_connect(&ipcon, cfg->str("host").c_str(), cfg->i("port")) < 0) {
+    if(ipcon_connect(&ipcon, cfg->str(HOST).c_str(), cfg->i(PORT)) < 0) {
         fprintf(stderr, "Could not connect to the sensors.\n"
         "Please make sure that the Brick daemon is running "
         "(`sudo brickd --daemon`) and that the master brick "
@@ -43,10 +43,10 @@ bool SensorInput::frequency_value(double* value) {
     uint16_t rawValue = 0;
     distance_us_get_distance_value(&distanceFrequency, &rawValue);
     
-    if (rawValue <= cfg->i("sensor_freq_max_value")) {
+    if (rawValue <= cfg->i(SENSOR_FREQ_MAX_VALUE)) {
         // normalize the value to [0,1]
-        *value = ((double) rawValue - cfg->i("sensor_freq_min_value")) 
-                / (cfg->i("sensor_freq_max_value") - cfg->i("sensor_freq_min_value"));
+        *value = ((double) rawValue - cfg->i(SENSOR_FREQ_MIN_VALUE)) 
+                / (cfg->i(SENSOR_FREQ_MAX_VALUE) - cfg->i(SENSOR_FREQ_MIN_VALUE));
         return true;
     } else {
         // do not report values over the threshold
@@ -67,13 +67,13 @@ bool SensorInput::volume_value(double* value) {
     distance_us_get_distance_value(&distanceVolume, &rawValue);
     
     // cap values at the threshold
-    if (rawValue >= cfg->i("sensor_vol_max_value")) {
-        rawValue = cfg->i("sensor_vol_max_value");
+    if (rawValue >= cfg->i(SENSOR_VOL_MAX_VALUE)) {
+        rawValue = cfg->i(SENSOR_VOL_MAX_VALUE);
     }
     
     // normalize the value to [0,1]
-    *value = (1 - ((double) rawValue - cfg->i("sensor_vol_min_value")) 
-                / (cfg->i("sensor_vol_max_value") - cfg->i("sensor_vol_min_value")));
+    *value = (1 - ((double) rawValue - cfg->i(SENSOR_VOL_MIN_VALUE)) 
+                / (cfg->i(SENSOR_VOL_MAX_VALUE) - cfg->i(SENSOR_VOL_MIN_VALUE)));
     return true;
 }
 

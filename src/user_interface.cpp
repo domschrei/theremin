@@ -34,7 +34,7 @@ void UserInterface::setup(Configuration* cfg) {
     sans = TTF_OpenFont("LiberationSans-Regular.ttf", 16);
     sansLarge = TTF_OpenFont("LiberationSans-Regular.ttf", 30);
     
-    if (!cfg->b("realtime_display")) {
+    if (!cfg->b(REALTIME_DISPLAY)) {
         
         // Constant black text on white background
         SDL_Color black = {0, 0, 0, 255};
@@ -94,7 +94,7 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
     SDL_Rect progressVolume;
     progressVolume.x = 15; progressVolume.y = window_h - 45; 
     progressVolume.w = window_w - 30; progressVolume.h = 30;
-    draw_progress(progressVolume, synth->volume / cfg->i("max_volume"), true);
+    draw_progress(progressVolume, synth->volume / cfg->i(MAX_VOLUME), true);
         
     // "Frequency" label
     draw_text("Frequency", 190, 30, textColor, sans);

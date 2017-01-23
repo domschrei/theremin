@@ -6,11 +6,12 @@
 #include "wave_synth.h"
 
 void WaveSynth::init(Configuration* cfg) {
+    
     this->cfg = cfg;
     
-    sample_rate = cfg->i("sample_rate");
-    volume = cfg->i("max_volume");
-    waveform = cfg->str("waveform");
+    sample_rate = cfg->i(SAMPLE_RATE);
+    volume = cfg->i(MAX_VOLUME);
+    waveform = cfg->str(WAVEFORM);
     period = sample_rate / frequency;
     
     // Find the correct index of the default waveform
@@ -21,7 +22,7 @@ void WaveSynth::init(Configuration* cfg) {
         }
     }
     
-    std::string lowest_note = cfg->str("lowest_note");
+    std::string lowest_note = cfg->str(LOWEST_NOTE);
     for (int i = 0; i < sizeof(NOTE_NAMES)/sizeof(*NOTE_NAMES); i++) {
         if (NOTE_NAMES[i] == lowest_note) {
             frequency = NOTES[i];
@@ -29,28 +30,28 @@ void WaveSynth::init(Configuration* cfg) {
             break;
         }
     }
-    numOctaves = cfg->i("num_octaves");
-    maxVol = cfg->i("max_volume");
-    maxVolumeChangePerTick = cfg->d("max_volume_change_per_tick");
+    numOctaves = cfg->i(NUM_OCTAVES);
+    maxVol = cfg->i(MAX_VOLUME);
+    maxVolumeChangePerTick = cfg->d(MAX_VOLUME_CHANGE_PER_TICK);
     
-    autotuneMode = cfg->str("autotune_mode");
+    autotuneMode = cfg->str(AUTOTUNE_MODE);
     
     waveSmoothing.waveSwitch = false;
     waveSmoothing.lastWaveAddOffset = 0.0;
     waveSmoothing.lastWaveTotalOffset = 0.0;
     waveSmoothing.wavePeriod = period;
     
-    tremolo = cfg->b("tremolo_enabled");
-    tremoloFrequency = cfg->d("tremolo_frequency");
-    tremoloIntensity = cfg->d("tremolo_intensity");
+    tremolo = cfg->b(TREMOLO_ENABLED);
+    tremoloFrequency = cfg->d(TREMOLO_FREQUENCY);
+    tremoloIntensity = cfg->d(TREMOLO_INTENSITY);
 }
 
 /*
  * Generates a single sample (i.e. data point) as a function of t
  * corresponding to the current frequency, volume and waveform.
  */
-uint16_t WaveSynth::wave(double t)
-{
+uint16_t WaveSynth::wave(double t) {
+    
     // Find correct position of primary wave
     set_wave_offset(t, &waveSmoothing);
     t += waveSmoothing.lastWaveAddOffset * waveSmoothing.wavePeriod;
@@ -262,7 +263,7 @@ void WaveSynth::update_frequency(float value) {
     period = sample_rate / frequency;
     waveSmoothing.wavePeriod = period;
     
-    if (cfg->b("log_freq")) {
+    if (cfg->b(LOG_FREQ)) {
         std::cout << frequency << std::endl;
     }
 }

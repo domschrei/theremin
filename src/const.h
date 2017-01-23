@@ -1,6 +1,54 @@
 #ifndef THEREMIN_CONST_H
 #define THEREMIN_CONST_H
 
+
+/* CONFIGURATION KEYS */
+
+#define INPUT_DEVICE "input_device"
+#define REALTIME_DISPLAY "realtime_display"
+#define LOG_DATA "log_data"
+#define LOG_FREQ "log_freq"
+
+#define TASK_FREQUENCY_INPUT_MOUSE "task_frequency_input_mouse"
+#define TASK_FREQUENCY_INPUT_SENSOR "task_frequency_input_sensor"
+#define TASK_FREQUENCY_INPUT_GENERAL "task_frequency_input_general"
+#define TASK_FREQUENCY_DISPLAY_REFRESH "task_frequency_display_refresh"
+
+#define MAX_VOLUME "max_volume"
+#define MAX_VOLUME_CHANGE_PER_TICK "max_volume_change_per_tick"
+#define SAMPLE_RATE "sample_rate"
+#define BUFFER_SIZE "buffer_size"
+
+#define WAVEFORM "waveform"
+#define LOWEST_NOTE "lowest_note"
+#define NUM_OCTAVES "num_octaves"
+#define AUTOTUNE_MODE "autotune_mode"
+
+#define TREMOLO_ENABLED "tremolo_enabled"
+#define TREMOLO_FREQUENCY "tremolo_frequency"
+#define TREMOLO_INTENSITY "tremolo_intensity"
+
+#define UID_FREQUENCY "uid_frequency"
+#define UID_VOLUME "uid_volume"
+#define HOST "host"
+#define PORT "port"
+
+#define SENSOR_FREQ_MIN_VALUE "sensor_freq_min_value"
+#define SENSOR_FREQ_MAX_VALUE "sensor_freq_max_value"
+#define SENSOR_VOL_MIN_VALUE "sensor_vol_min_value"
+#define SENSOR_VOL_MAX_VALUE "sensor_vol_max_value"
+
+#define ACTION_SUSTAIN_NOTE "action_sustain_note"
+#define ACTION_OCTAVE_UP "action_octave_up"
+#define ACTION_CHANGE_WAVEFORM "action_change_waveform"
+#define ACTION_AUTOTUNE_NONE "action_autotune_none"
+#define ACTION_AUTOTUNE_SMOOTH "action_autotune_smooth"
+#define ACTION_AUTOTUNE_FULL "action_autotune_full"
+#define ACTION_TREMOLO "action_tremolo"
+
+
+/* CONFIGURATION VALUES */
+
 // Input device
 #define INPUT_DEVICE_MOUSE "mouse"
 #define INPUT_DEVICE_SENSOR "sensor"
@@ -112,14 +160,5 @@ static const char* NOTE_NAMES[] = {"c0","c#0","d0","d#0","e0","f0","f#0","g0","g
 #define AUTOTUNE_NONE "none"
 #define AUTOTUNE_SMOOTH "smooth"
 #define AUTOTUNE_FULL "full"
-
-// Triggerable actions
-#define ACTION_SUSTAIN_NOTE "action_sustain_note"
-#define ACTION_OCTAVE_UP "action_octave_up"
-#define ACTION_CHANGE_WAVEFORM "action_change_waveform"
-#define ACTION_AUTOTUNE_NONE "action_autotune_none"
-#define ACTION_AUTOTUNE_SMOOTH "action_autotune_smooth"
-#define ACTION_AUTOTUNE_FULL "action_autotune_full"
-#define ACTION_TREMOLO "action_tremolo"
 
 #endif
