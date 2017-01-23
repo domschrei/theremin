@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "user_interface.h"
+#include "user_interface.hpp"
 
 /*
  * Initial input and video settings

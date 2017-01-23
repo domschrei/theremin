@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "const.h"
-#include "audio.h"
+#include "audio.hpp"
 
 /*
  * Convert between some amount of samples

@@ -3,11 +3,11 @@
 #include <vector>
 
 #include "const.h"
-#include "configuration.h"
-#include "wave_synth.h"
-#include "user_interface.h"
-#include "audio.h"
-#include "sensor_input.h"
+#include "configuration.hpp"
+#include "wave_synth.hpp"
+#include "user_interface.hpp"
+#include "audio.hpp"
+#include "sensor_input.hpp"
 
 WaveSynth synth;
 UserInterface userInterface;

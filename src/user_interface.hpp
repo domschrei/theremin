@@ -5,8 +5,8 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "const.h"
-#include "configuration.h"
-#include "wave_synth.h"
+#include "configuration.hpp"
+#include "wave_synth.hpp"
 
 class UserInterface {
     

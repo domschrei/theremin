@@ -5,7 +5,7 @@
 #include <string>
 
 #include "const.h"
-#include "configuration.h"
+#include "configuration.hpp"
 
 class WaveSynth {
 

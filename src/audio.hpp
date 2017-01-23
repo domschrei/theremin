@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
-#include "configuration.h"
+#include "configuration.hpp"
 
 class Audio {
 

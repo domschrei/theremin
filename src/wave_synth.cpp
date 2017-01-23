@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "wave_synth.h"
+#include "wave_synth.hpp"
 
 void WaveSynth::init(Configuration* cfg) {
     

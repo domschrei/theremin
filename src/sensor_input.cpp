@@ -2,7 +2,7 @@
 #include <functional>
 
 #include "const.h"
-#include "sensor_input.h"
+#include "sensor_input.hpp"
 
 /*
  * Connects to the sensor brick at localhost:4223 and to the

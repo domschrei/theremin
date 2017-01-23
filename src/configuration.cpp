@@ -1,7 +1,7 @@
 #include <iostream>
 #include <libconfig.h++>
 
-#include "configuration.h"
+#include "configuration.hpp"
 
 void Configuration::load() {
     

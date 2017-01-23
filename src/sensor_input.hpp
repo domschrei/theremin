@@ -4,7 +4,7 @@
 #include "../tinkerforge/source/ip_connection.h"
 #include "../tinkerforge/source/bricklet_distance_us.h"
 
-#include "configuration.h"
+#include "configuration.hpp"
 
 class SensorInput {
 
