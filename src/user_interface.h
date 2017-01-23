@@ -11,14 +11,15 @@
 class UserInterface {
     
 public:
-    void setup(Configuration* cfg);
+    void setup(Configuration* cfg, WaveSynth* synth);
     std::vector<std::string> poll_events();
     void fetch_input(float *x, float *y);
-    void refresh_surface(WaveSynth* synth);
+    void refresh_surface();
     void clean_up();
   
 private:
     Configuration* cfg;
+    WaveSynth* synth;
     
     float mouse_x;
     float mouse_y;
@@ -32,11 +33,6 @@ private:
     TTF_Font* sans;
     TTF_Font* sansLarge;
     
-    void draw_pedal(const char* text, int x, int y, bool isPressed);
-    void draw_progress(SDL_Rect rect, float share, bool inReadDirection);
-    void draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font);
-    void round_corners(SDL_Rect rect);
-    
     std::string lastWaveform;
     std::string lastAutotuneMode;
     
@@ -44,6 +40,20 @@ private:
     const char* HELP_TEXT_2 = "frequency and volume.";
     const char* HELP_TEXT_3 = "Press the corresponding keys";
     const char* HELP_TEXT_4 = "to trigger the effects.";
+    
+    
+    /* Drawing routines, from high to low abstraction */
+
+    void draw_effect_labels();
+    void draw_note_display();
+    void draw_status_bars();
+    void draw_help_text();
+    
+    void draw_pedal(const char* text, int x, int y, bool isPressed);
+    void draw_progress(SDL_Rect rect, float share, bool inReadDirection);
+    void draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font);
+    
+    void round_corners(SDL_Rect rect);
 };
 
 #endif
