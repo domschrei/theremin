@@ -20,7 +20,7 @@ I also developed a small framework for my Theremin to work. The application's ta
 
 ![The application's UI in action](http://dominikschreiber.de/theremin/ui.jpg)
 
-I used the [SDL2 library](http://libsdl.org) and the default C(++) bindings for the Tinkerforge sensors. There aren't any other dependencies (besides for the build process and for the brick ↔ computer connectivity).
+I used the [SDL2 library](http://libsdl.org), [libconfig](http://www.hyperrealm.com/libconfig/) for configuration management, and the default C(++) bindings for the Tinkerforge sensors. There aren't any other dependencies (besides for the build process and for the brick ↔ computer connectivity).
 
 ## Construction manual
 
@@ -35,7 +35,7 @@ What you will need:
 * **Two [ultrasonic distance bricklets](https://www.tinkerforge.com/de/doc/Hardware/Bricklets/Distance_US.html#distance-us-bricklet) and the [master brick](https://www.tinkerforge.com/de/doc/Hardware/Bricks/Master_Brick.html)** mentioned above  
 (also buy the corresponding bricklet ↔ brick connection cables)
 * **A triple foot switch**
-(like [this one](https://www.amazon.de/dp/B00WS2GZU2/ref=cm_sw_em_r_mt_dp_TK9GybS27T1YN); there are many providers for this specific piece, and others should work fine, too, as long as they are mappable to the letters "a", "b" and "c" or you are willing to change the keymaps inside `src/user_interface.cpp`) 
+(like [this one](https://www.amazon.de/dp/B00WS2GZU2/ref=cm_sw_em_r_mt_dp_TK9GybS27T1YN); there are many providers for this specific piece, and others should work fine, too, as long as they are mapped (or mappable) to any printable character) 
 * **A mini (not micro) USB cable** to connect the master brick with the computer
 * **Cupboard and duct tape** or something similar to improvise a pair of "gloves"  
 (to provide a flat surface for the sensors for better results, see below)
@@ -70,10 +70,14 @@ Execute
 ```
 sudo brickd --daemon
 ```
-and open `brickv`. You should now be able to connect to your master brick and see the connected two distance sensors. Get their three-figure UIDs (for example, `uvw` and `xyz`) and replace the definitions of `UID_FREQUENCY` and `UID_VOLUME` inside the file `src/config.h` with your UIDs.
+and open `brickv`. You should now be able to connect to your master brick and see the connected two distance sensors. Get their three-figure UIDs (for example, `uvw` and `xyz`) and replace the definitions of `UID_FREQUENCY` and `UID_VOLUME` inside the configuration file `theremin.cfg` with your UIDs.
 ```
-#define UID_FREQUENCY "uvw" // UID of ultrasonic distance sensor #1
-#define UID_VOLUME "xyz" // UID of ultrasonic distance sensor #2
+/* Sensor settings */
+
+// Insert 1st bricklet UID here [alphanumeric string of size 3]
+uid_frequency = "uvw"; 
+// Insert 2nd bricklet UID here [alphanumeric string of size 3]
+uid_volume = "xyz";
 ```
 (It does not matter which of the sensors is assigned to which constant, as you can just swap them.)
 
@@ -85,7 +89,9 @@ bash build.sh
 ```
 inside the application's root folder, which should let an executable called `theremin` appear.
 
-Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin`.) The USB foot switch should be plug-and-play.
+Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin`.) 
+
+The USB foot switch should be plug-and-play; for correct input mapping, see the following section, subsection "Foot switch".
 
 ## Using and tweaking
 
@@ -101,11 +107,11 @@ The foot switch has the following options:
 * Central pedal: Until the pedal gets pressed another time, all tones will be played exactly one octave higher. This can be used to extend the pitch range of the instrument.
 * Right pedal: Each press switches the waveform which is being used for audio synthesis. I implemented some pretty random waveforms, with varying results.
 
-Internally, the foot switch just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch).
+By default, the foot switch used by me just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch). You can change the triggering characters for specific actions inside the configuration file `theremin.cfg` under the paragraph `Input settings`.
 
 ### Autotune modes
 
-The application supports some types of frequency aligning: `none`, `smooth` and `full`. You can change the type by pressing 1, 2 or 3 respectively, and they have the following effects:
+The application supports some types of frequency aligning: `none`, `smooth` and `full`. By default, you can change the type by pressing 1, 2 or 3 respectively, and they have the following effects:
 
 * `none`: The distance value of the sensor gets directly mapped to a frequency (in an exponential manner, such that moving the hand by the same amount on different height levels should yield roughly the same frequency interval).
 * `smooth`: Works like `none`, but adds a specific sine wave to the frequency such that the played tone gets "pushed" towards proper halftones, but in-between frequencies are possible nonetheless.
@@ -113,6 +119,6 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 ### Configuration
 
-If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, you can look into the header file `src/config.h` where many things can be tweaked. To tune performance (and trade against better audio quality and/or lower latency), especially he real-time display can be turned off (`REALTIME_DISPLAY`) or its refresh rate can be decreased (`TASK_FREQUENCY_DISPLAY_REFRESH`). Additionally, the constants `AUDIO_SAMPLE_RATE` as well as the different task frequencies (`TASK_FREQUENCY_*`) can be adjusted, resulting in a better performance as well.
+If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, many things can be tweaked by editing the previously mentioned file `theremin.cfg`. To tune performance (and trade against better audio quality and/or lower latency), especially the real-time display can be turned off (`realtime_display`) or its refresh rate can be decreased (`task_frequency_display_refresh`). Additionally, the setting `sample_rate` as well as the other different task frequencies (`task_frequency_*`) can be adjusted, resulting in a better performance as well.
 
-Please note that the program has to be recompiled (`bash build.sh`) so that the config changes take effect.
+Just restart the application for the changes to take effect.
