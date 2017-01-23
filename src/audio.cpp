@@ -60,6 +60,9 @@ void Audio::start_playing() {
  * Also flushes the audio buffer to SDL when it is full.
  */
 bool Audio::new_sample(uint16_t sample) {
+    
+    if (exiting)
+        return false;
             
     bool played;
     
@@ -127,7 +130,10 @@ void Audio::reset() {
  * for exiting.
  */
 void Audio::set_exiting(bool isExiting) {
+    
     this->exiting = isExiting;
+    isPlaying = false;
+    delete buffer;
 }
 
 /*

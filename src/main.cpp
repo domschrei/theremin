@@ -3,12 +3,11 @@
 #include <vector>
 
 #include "const.h"
+#include "configuration.h"
 #include "wave_synth.h"
 #include "user_interface.h"
 #include "audio.h"
 #include "sensor_input.h"
-
-#include "configuration.h"
 
 WaveSynth synth;
 UserInterface userInterface;
@@ -32,6 +31,8 @@ void finish() {
     }
     
     userInterface.clean_up();
+    
+    delete cfg;
 }
 
 void main_loop(int *t) {
