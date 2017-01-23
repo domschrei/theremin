@@ -45,7 +45,7 @@ void main_loop(int *t) {
         // Grab input by mouse cursor
         if (*t % periodInputMouse == 0) {
             float x_value = 0, y_value = 0;
-            userInterface.fetch_input(&x_value, &y_value);
+            userInterface.last_cursor_position(&x_value, &y_value);
             synth.update_frequency(y_value);
             synth.update_volume(x_value);
         }
@@ -137,7 +137,7 @@ void main_loop(int *t) {
      * Refresh the drawn surface at some times, if enabled
      */
     if (cfg->b(REALTIME_DISPLAY) && (*t % periodDisplayRefresh == 0)) {
-        userInterface.refresh_surface(&synth);
+        userInterface.refresh_surface();
     }
     
     if (*t == INT32_MAX) {
@@ -160,7 +160,7 @@ int main(int argc, const char* argv[])
     
     // Basic input (i.e. mouse and keys / footswitch)
     // and graphical output
-    userInterface.setup(cfg);
+    userInterface.setup(cfg, &synth);
     
     // Sensor input
     if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_SENSOR) {

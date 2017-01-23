@@ -80,7 +80,7 @@ std::vector<std::string> UserInterface::poll_events() {
  * Returns the last known position of the mouse cursor,
  * previously checked with poll_events().
  */
-void UserInterface::fetch_input(float *x, float *y) {
+void UserInterface::last_cursor_position(float *x, float *y) {
     
     *x = (float) mouse_x / window_w;
     *y = (float) (window_h - mouse_y) / window_h;

@@ -13,7 +13,7 @@ class UserInterface {
 public:
     void setup(Configuration* cfg, WaveSynth* synth);
     std::vector<std::string> poll_events();
-    void fetch_input(float *x, float *y);
+    void last_cursor_position(float *x, float *y);
     void refresh_surface();
     void clean_up();
   
