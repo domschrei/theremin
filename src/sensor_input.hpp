@@ -1,8 +1,8 @@
 #ifndef THEREMIN_SENSOR_INPUT_H
 #define THEREMIN_SENSOR_INPUT_H
 
-#include "../tinkerforge/source/ip_connection.h"
-#include "../tinkerforge/source/bricklet_distance_us.h"
+#include "ip_connection.h"
+#include "bricklet_distance_us.h"
 
 #include "configuration.hpp"
 
