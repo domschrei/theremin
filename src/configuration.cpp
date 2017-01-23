@@ -15,12 +15,6 @@ void Configuration::load() {
                 << " - " << pex.getError() << std::endl;
         exit(1);
     }
-
-    try  {
-        std::string name = config.lookup("name");
-    } catch(const SettingNotFoundException &nfex) {
-        std::cerr << "No 'name' setting in configuration file." << std::endl;
-    }
 }
 
 bool Configuration::b(const char* value) {
