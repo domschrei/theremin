@@ -4,18 +4,21 @@
 #include "SDL2/SDL.h"
 #include <SDL2/SDL_ttf.h>
 
+#include "configuration.h"
 #include "wave_synth.h"
 
 class UserInterface {
     
 public:
-    void setup();
+    void setup(Configuration* cfg);
     bool* poll_events();
     void fetch_input(float *x, float *y);
     void refresh_surface(WaveSynth* synth);
     void clean_up();
   
 private:
+    Configuration* cfg;
+    
     float mouse_x;
     float mouse_y;
     

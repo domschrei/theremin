@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "config.h"
+#include "configuration.h"
 
 class WaveSynth {
 
@@ -26,6 +27,7 @@ public:
     };
 
 private:
+    Configuration* cfg;
     
     WaveSmoothing waveSmoothing;
     WaveSmoothing waveSmoothingSecondary;
@@ -55,6 +57,8 @@ private:
 // methods
     
 public:
+    void init(Configuration* cfg);
+    
     uint16_t wave(double t);
     
     void align_frequency();

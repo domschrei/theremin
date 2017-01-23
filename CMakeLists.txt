@@ -9,6 +9,7 @@ link_directories(${PROJECT_SOURCE_DIR}/tinkerforge/source/)
 
 add_executable(
 theremin 
+    src/configuration.cpp
     src/wave_synth.cpp 
     src/user_interface.cpp 
     src/audio.cpp 
@@ -21,4 +22,5 @@ theremin
     SDL2
     SDL2_ttf
     tinkerforge
+    config++
 )

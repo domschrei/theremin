@@ -242,7 +242,9 @@ void UserInterface::round_corners(SDL_Rect rect) {
 /*
  * Initial input and video settings
  */
-void UserInterface::setup() {
+void UserInterface::setup(Configuration* cfg) {
+    
+    this->cfg = cfg;
     
     // Initialize SDL video mode
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -267,7 +269,7 @@ void UserInterface::setup() {
     sans = TTF_OpenFont("LiberationSans-Regular.ttf", 16);
     sansLarge = TTF_OpenFont("LiberationSans-Regular.ttf", 30);
     
-    if (!REALTIME_DISPLAY) {
+    if (!cfg->b("realtime_display")) {
         
         // Constant black text on white background
         SDL_Color black = {0, 0, 0, 255};

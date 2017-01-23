@@ -5,6 +5,14 @@
 
 #include "wave_synth.h"
 
+void WaveSynth::init(Configuration* cfg) {
+    this->cfg = cfg;
+    
+    sample_rate = cfg->i("sample_rate");
+    volume = cfg->i("max_volume");
+    frequency = LOWEST_NOTE;
+}
+
 /*
  * Generates a single sample (i.e. data point) as a function of t
  * corresponding to the current frequency, volume and waveform.

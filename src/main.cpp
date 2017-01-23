@@ -6,16 +6,25 @@
 #include "audio.h"
 #include "sensor_input.h"
 
+#include "configuration.h"
+
 WaveSynth synth;
 UserInterface userInterface;
 Audio audio;
 SensorInput sensorInput;
 
+Configuration* cfg;
+
+int periodInputMouse;
+int periodInputSensor;
+int periodInputGeneral;
+int periodDisplayRefresh;
+
 void finish() {
     
     audio.set_exiting(true);
     
-    if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
+    if (cfg->str("input_device") == "sensor") {
         sensorInput.finish();
         std::cout << "Finished sensor connection." << std::endl;
     }
@@ -28,20 +37,20 @@ void main_loop(int *t) {
     /*
      * Process input to adjust volume and frequency
      */
-    if (INPUT_DEVICE == INPUT_DEVICE_MOUSE) {
+    if (cfg->str("input_device") == "mouse") {
         
         // Grab input by mouse cursor
-        if (*t % PERIOD_INPUT_MOUSE == 0) {
+        if (*t % periodInputMouse == 0) {
             float x_value = 0, y_value = 0;
             userInterface.fetch_input(&x_value, &y_value);
             synth.update_frequency(y_value);
             synth.update_volume(x_value);
         }
         
-    } else if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
+    } else if (cfg->str("input_device") == "sensor") {
         
         // Grab input by Tinkerforge sensors
-        if (*t % PERIOD_INPUT_SENSOR == 0) {
+        if (*t % periodInputSensor == 0) {
             double value = 0.0;
             bool valueOk;
             valueOk = sensorInput.volume_value(&value);
@@ -59,7 +68,7 @@ void main_loop(int *t) {
         exit(1);
     }    
     
-    if (*t % PERIOD_INPUT_GENERAL == 0) {
+    if (*t % periodInputGeneral == 0) {
         /*
         * Process key input (by keyboard or foot switch)
         */
@@ -137,7 +146,7 @@ void main_loop(int *t) {
     /*
      * Refresh the drawn surface at some times, if enabled
      */
-    if (REALTIME_DISPLAY && (*t % PERIOD_DISPLAY_REFRESH == 0)) {
+    if (cfg->b("realtime_display") && (*t % periodDisplayRefresh == 0)) {
         userInterface.refresh_surface(&synth);
     }
     
@@ -148,17 +157,31 @@ void main_loop(int *t) {
 
 int main(int argc, const char* argv[]) 
 {
+    // Load configuration
+    cfg = new Configuration();
+    cfg->load();
+    
+    // Calculate periods for various tasks
+    int sampleRate = cfg->i("sample_rate");
+    periodInputMouse = sampleRate / cfg->i("task_frequency_input_mouse");
+    periodInputSensor = sampleRate / cfg->i("task_frequency_input_sensor");
+    periodInputGeneral = sampleRate / cfg->i("task_frequency_input_general");
+    periodDisplayRefresh = sampleRate / cfg->i("task_frequency_display_refresh");
+    
     // Basic input (i.e. mouse and keys / footswitch)
     // and graphical output
-    userInterface.setup();
+    userInterface.setup(cfg);
     
     // Sensor input
-    if (INPUT_DEVICE == INPUT_DEVICE_SENSOR) {
-        sensorInput.setup_sensors();
+    if (cfg->str("input_device") == "sensor") {
+        sensorInput.setup_sensors(cfg);
     }
     
     // Audio output stuff
-    audio.setup_audio();
+    audio.setup_audio(cfg);
+    
+    // Wave synthesizer
+    synth.init(cfg);
     
     // Program exit callback
     atexit(finish);

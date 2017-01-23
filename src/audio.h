@@ -4,10 +4,12 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
+#include "configuration.h"
+
 class Audio {
 
 public:    
-    void setup_audio();
+    void setup_audio(Configuration* cfg);
     void start_playing();
     bool new_sample(uint16_t sample);
     void reset();
@@ -23,6 +25,8 @@ private:
     
     bool exiting = false;
     bool isPlaying = false;
+    
+    Configuration* cfg;
     
     int bufferSize;
     Uint16 buffer[AUDIO_BUFFER_SIZE];

@@ -3,17 +3,6 @@
 
 #include "const.h"
 
-// UID of ultrasonic distance sensor #1
-#define UID_FREQUENCY "zmj" 
-
-// UID of ultrasonic distance sensor #2
-#define UID_VOLUME "zn8" 
-
-// Host and port where to look for the brick daemon
-// (usually does not have to be changed)
-#define HOST "localhost"
-#define PORT 4223
-
 // "true" to show a real-time graphical info display
 // which might be too expensive for some computers to
 // maintain in addition to the audio synthesis
@@ -46,7 +35,7 @@
 #define MAX_VOLUME 65535
 
 // The input device (see INPUT_* inside const.h)
-#define INPUT_DEVICE INPUT_DEVICE_SENSOR
+#define INPUT_DEVICE INPUT_DEVICE_MOUSE
 
 // The default autotune mode
 // See AUTOTUNE_* inside const.h
@@ -60,16 +49,6 @@
 // Size of the application's audio buffer.
 // Higher values should mean 
 #define AUDIO_BUFFER_SIZE 512
-
-// Calibration of sensors; the MIN and MAX values
-// represent lower and upper limits for the 
-// distance values to be valid.
-// Adjust to change the interval in which the movement
-// of your hands is being recognized
-#define SENSOR_FREQ_MIN_VALUE 100
-#define SENSOR_FREQ_MAX_VALUE 1000
-#define SENSOR_VOL_MIN_VALUE 70
-#define SENSOR_VOL_MAX_VALUE 400
 
 // Determines by how many ticks the volume will be decreased
 // each time there is no valid sensor data for it

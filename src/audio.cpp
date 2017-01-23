@@ -18,19 +18,20 @@ int samples_to_bytes(int samples) {
 /*
  * Initial audio settings
  */
-void Audio::setup_audio() {
+void Audio::setup_audio(Configuration* cfg) {
     
     bufferIdx = 0;
-    bufferSize = AUDIO_BUFFER_SIZE;
+    this->cfg = cfg;
+    bufferSize = cfg->i("buffer_size");
     
     SDL_AudioSpec wanted, having;
 
     /* Set the audio format */
-    wanted.freq = AUDIO_SAMPLE_RATE;
+    wanted.freq = cfg->i("sample_rate");
     wanted.format = AUDIO_U16;
     wanted.channels = 1;    /* 1 = mono, 2 = stereo */
-    wanted.samples = AUDIO_BUFFER_SIZE;
-    wanted.callback = NULL; //fill_audio;
+    wanted.samples = bufferSize;
+    wanted.callback = NULL;
     wanted.userdata = NULL;
 
     /* Open the audio device, forcing the desired format */
@@ -64,7 +65,7 @@ bool Audio::new_sample(uint16_t sample) {
     if (bufferIdx < bufferSize) {
         buffer[bufferIdx] = sample;
         
-        if (LOG_DATA) {
+        if (cfg->b("log_data")) {
             std::cout << " " << (int) buffer[bufferIdx] << std::endl;
         }
         bufferIdx++;
