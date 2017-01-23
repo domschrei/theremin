@@ -10,6 +10,8 @@
  */
 void SensorInput::setup_sensors(Configuration* cfg) {
     
+    this->cfg = cfg;
+    
     // Create IP connection
     ipcon_create(&ipcon);
 
@@ -48,7 +50,7 @@ bool SensorInput::frequency_value(double* value) {
         *value = ((double) rawValue - cfg->i(SENSOR_FREQ_MIN_VALUE)) 
                 / (cfg->i(SENSOR_FREQ_MAX_VALUE) - cfg->i(SENSOR_FREQ_MIN_VALUE));
         return true;
-    } else {
+    } else {        
         // do not report values over the threshold
         return false;
     }
