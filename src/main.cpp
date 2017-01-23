@@ -1,6 +1,8 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
-#include "config.h"
+#include "const.h"
 #include "wave_synth.h"
 #include "user_interface.h"
 #include "audio.h"
@@ -72,51 +74,38 @@ void main_loop(int *t) {
         /*
         * Process key input (by keyboard or foot switch)
         */
-        bool* input_keys = userInterface.poll_events();
-        
-        for (int inputId = 0; inputId < NUM_INPUTS; inputId++) {
-            if (input_keys[inputId]) {
-                switch (ACTIONS[inputId]) {
-                    
-                    // Adds a second tone to the audio output, if pressed
-                    case ACTION_SUSTAINED_NOTE:
-                        if (!synth.is_secondary_frequency_active()) {
-                            synth.set_secondary_frequency(synth.frequency);
-                        } else {
-                            synth.set_secondary_frequency(0.0);
-                        }
-                        break;
-                    
-                    // Octaves the audio upwards, if pressed
-                    case ACTION_OCTAVE_UP:
-                        if (!synth.is_octave_offset()) {
-                            synth.set_octave_offset(true);
-                        } else {
-                            synth.set_octave_offset(false);
-                        }
-                        break;
-                    
-                    // Switches to the next waveform on each press
-                    case ACTION_CHANGE_WAVEFORM:
-                        synth.switch_waveform();
-                        break;
-                    
-                    // Autotune settings
-                    case ACTION_AUTOTUNE_NONE:
-                        synth.set_autotune_mode(AUTOTUNE_NONE);
-                        break;
-                    case ACTION_AUTOTUNE_SMOOTH:
-                        synth.set_autotune_mode(AUTOTUNE_SMOOTH);
-                        break;
-                    case ACTION_AUTOTUNE_FULL:
-                        synth.set_autotune_mode(AUTOTUNE_FULL);
-                        break;
-                    
-                    // Toggle tremolo
-                    case ACTION_TREMOLO:
-                        synth.set_tremolo(!synth.is_tremolo_enabled());
-                        break;
+        std::vector<std::string> actions = userInterface.poll_events();
+        for (int actionIdx = 0; actionIdx < actions.size(); actionIdx++) {
+            std::string action = actions[actionIdx];
+            
+            if (action == cfg->str(ACTION_SUSTAIN_NOTE)) {
+                if (!synth.is_secondary_frequency_active()) {
+                    synth.set_secondary_frequency(synth.frequency);
+                } else {
+                    synth.set_secondary_frequency(0.0);
                 }
+                
+            } else if (action == cfg->str(ACTION_OCTAVE_UP)) {
+                if (!synth.is_octave_offset()) {
+                    synth.set_octave_offset(true);
+                } else {
+                    synth.set_octave_offset(false);
+                }
+                
+            } else if (action == cfg->str(ACTION_CHANGE_WAVEFORM)) {
+                synth.switch_waveform();
+                
+            } else if (action == cfg->str(ACTION_AUTOTUNE_NONE)) {
+                synth.set_autotune_mode(AUTOTUNE_NONE);
+                
+            } else if (action == cfg->str(ACTION_AUTOTUNE_SMOOTH)) {
+                synth.set_autotune_mode(AUTOTUNE_SMOOTH);
+                
+            } else if (action == cfg->str(ACTION_AUTOTUNE_FULL)) {
+                synth.set_autotune_mode(AUTOTUNE_FULL);
+                
+            } else if (action == cfg->str(ACTION_TREMOLO)) {
+                synth.set_tremolo(!synth.is_tremolo_enabled());
             }
         }
         

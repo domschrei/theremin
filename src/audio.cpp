@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "config.h"
+#include "const.h"
 #include "audio.h"
 
 /*
@@ -23,6 +23,7 @@ void Audio::setup_audio(Configuration* cfg) {
     bufferIdx = 0;
     this->cfg = cfg;
     bufferSize = cfg->i("buffer_size");
+    buffer = new Uint16[bufferSize];
     
     SDL_AudioSpec wanted, having;
 

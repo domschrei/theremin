@@ -11,7 +11,7 @@ class UserInterface {
     
 public:
     void setup(Configuration* cfg);
-    bool* poll_events();
+    std::vector<std::string> poll_events();
     void fetch_input(float *x, float *y);
     void refresh_surface(WaveSynth* synth);
     void clean_up();
@@ -36,8 +36,8 @@ private:
     void draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font);
     void round_corners(SDL_Rect rect);
     
-    int lastWaveform = WAVEFORM;
-    int lastAutotuneMode = AUTOTUNE_MODE;
+    std::string lastWaveform;
+    std::string lastAutotuneMode;
     
     const char* HELP_TEXT_1 = "Use the sensors to control";
     const char* HELP_TEXT_2 = "frequency and volume.";

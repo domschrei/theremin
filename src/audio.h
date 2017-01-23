@@ -29,7 +29,7 @@ private:
     Configuration* cfg;
     
     int bufferSize;
-    Uint16 buffer[AUDIO_BUFFER_SIZE];
+    Uint16* buffer;
     int bufferIdx;
 };
     

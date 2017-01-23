@@ -2,8 +2,9 @@
 #define THEREMIN_WAVESYNTH_H
 
 #include <cmath>
+#include <string>
 
-#include "config.h"
+#include "const.h"
 #include "configuration.h"
 
 class WaveSynth {
@@ -12,18 +13,18 @@ class WaveSynth {
 
 public:
     // Basic audio properties
-    double sample_rate = AUDIO_SAMPLE_RATE;
-    double frequency = LOWEST_NOTE; // will be changed by 1st input
-    double volume = MAX_VOLUME;
-    double period = sample_rate / frequency; // will be changed by 1st input
+    double sample_rate;
+    double frequency;
+    double volume;
+    double period;
     
     struct WaveSmoothing {
         // Properties to ensure continuity (and, to a certain degree, 
         // smoothness of waves), despite frequency and volume changes
-        bool waveSwitch = false;
-        double lastWaveAddOffset = 0.0;
-        double lastWaveTotalOffset = 0.0;
-        double wavePeriod = 16384 / LOWEST_NOTE;
+        bool waveSwitch;
+        double lastWaveAddOffset;
+        double lastWaveTotalOffset;
+        double wavePeriod;
     };
 
 private:
@@ -31,7 +32,9 @@ private:
     
     WaveSmoothing waveSmoothing;
     WaveSmoothing waveSmoothingSecondary;
-    int waveform = WAVEFORM + 0;
+    
+    int waveformIdx = 0;
+    std::string waveform = WAVE_NAMES[waveformIdx];
     
     // Properties for audio synthesis
     double root12Of2 = std::pow(2.0, 1.0/12); // ratio between two half-tones
@@ -39,18 +42,24 @@ private:
     double freqAis = freqA * root12Of2; // next half-tone next to standard pitch
     double ratioInLog = std::log(freqAis) * M_LOG2E 
             - std::log(freqA) * M_LOG2E; // logarithmic ratio between half-tones
+    double minFreq;
+    int maxVol;
+    int numOctaves;
     
     double mutedVolume = 0;
     bool octaveOffset = false;
+    double maxVolumeChangePerTick;
     
-    bool tremolo = TREMOLO_ENABLED;
+    bool tremolo;
+    double tremoloIntensity;
+    double tremoloFrequency;
     bool tremoloExiting = false;
     double tremoloOffset = 0.0;
     
     double secondaryFrequency;
     double secondaryVolumeShare = 0.4;
     
-    int autotuneMode = AUTOTUNE_MODE;
+    std::string autotuneMode;
     
     double volumeTarget = volume;
     
@@ -70,15 +79,15 @@ public:
     void switch_waveform();
     void set_secondary_frequency(double secondaryFrequency);
     bool is_secondary_frequency_active();
-    void set_autotune_mode(int mode);
+    void set_autotune_mode(std::string mode);
     
     double get_max_frequency();
     double get_normalized_frequency(double f);
     int get_nearest_lower_note_index();
     bool is_octave_offset();
     bool is_tremolo_enabled();
-    int get_waveform();
-    int get_autotune_mode();
+    std::string get_waveform();
+    std::string get_autotune_mode();
     void volume_tick();
 
 private:

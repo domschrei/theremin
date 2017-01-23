@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <functional>
 
-#include "config.h"
+#include "const.h"
 #include "sensor_input.h"
 
 /*

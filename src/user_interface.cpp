@@ -1,31 +1,66 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "user_interface.h"
+
+/*
+ * Initial input and video settings
+ */
+void UserInterface::setup(Configuration* cfg) {
+    
+    this->cfg = cfg;
+    
+    // Initialize SDL video mode
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        fprintf(stderr, "Could not initialise SDL: %s\n", SDL_GetError());
+        exit(-1);
+    }
+    
+    // Create a window
+    window = SDL_CreateWindow("Theremin",
+                          SDL_WINDOWPOS_UNDEFINED,
+                          SDL_WINDOWPOS_UNDEFINED,
+                          window_w, window_h, 
+                          /*SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL*/ 0 );
+    if (!window) {
+        fprintf(stderr, "Couldn't create window: %s\n",
+                        SDL_GetError());
+        exit(1);
+    }
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    
+    TTF_Init();
+    sans = TTF_OpenFont("LiberationSans-Regular.ttf", 16);
+    sansLarge = TTF_OpenFont("LiberationSans-Regular.ttf", 30);
+    
+    if (!cfg->b("realtime_display")) {
+        
+        // Constant black text on white background
+        SDL_Color black = {0, 0, 0, 255};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+        draw_text("THEREMIN", 20, 20, black, sansLarge);
+        draw_text("Realtime display disabled.", 20, 60, black, sans);
+        SDL_RenderPresent(renderer);
+    }
+}
 
 /*
  * Returns an array of bools. At index i of this array,
  * the bool determines whether the input with ID i has
  * occured (see the constants INPUT_*).
  */
-bool* UserInterface::poll_events()
-{    
-    static bool results[NUM_INPUTS];
-    for (int i = 0; i < NUM_INPUTS; i++) {
-        results[i] = false;
-    }
+std::vector<std::string> UserInterface::poll_events() {
+    
+    std::vector<std::string> actions;
     SDL_Event event;
     
     while (SDL_PollEvent(&event)) {
         
         switch (event.type) {
-
-        case SDL_KEYDOWN:
-            // Search for an input which has been triggered
-            for (int input = 0; input < NUM_INPUTS; input++) {
-                if ((int) event.key.keysym.sym == INPUTS[input]) {
-                    results[input] = true;
-                } 
-            }
+        case SDL_TEXTINPUT:
+            actions.push_back(event.text.text);
             break;
         case SDL_MOUSEMOTION:
             mouse_x = event.motion.x;
@@ -36,8 +71,14 @@ bool* UserInterface::poll_events()
         }
     }
     
-    return results;
+    return actions;
 }
+
+void UserInterface::fetch_input(float *x, float *y) {
+    
+    *x = (float) mouse_x / window_w;
+    *y = (float) (window_h - mouse_y) / window_h;
+} 
 
 void UserInterface::refresh_surface(WaveSynth* synth) {
     
@@ -53,7 +94,7 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
     SDL_Rect progressVolume;
     progressVolume.x = 15; progressVolume.y = window_h - 45; 
     progressVolume.w = window_w - 30; progressVolume.h = 30;
-    draw_progress(progressVolume, synth->volume / MAX_VOLUME, true);
+    draw_progress(progressVolume, synth->volume / cfg->i("max_volume"), true);
         
     // "Frequency" label
     draw_text("Frequency", 190, 30, textColor, sans);
@@ -81,11 +122,8 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
         textB = "All notes regular";
     }
     // Display index and name of the current wave
-    std::string waveform = std::to_string(synth->get_waveform());
-    std::string waveText = std::string("Wave: #") + waveform;
-    waveText = waveText + " (";
-    waveText = waveText + WAVE_NAMES[synth->get_waveform()];
-    waveText = waveText + ")";
+    std::string waveform = synth->get_waveform();
+    std::string waveText = std::string("Wave: ") + waveform;
     textC = waveText.c_str();
     if (synth->is_tremolo_enabled()) {
         textD = "Tremolo enabled";
@@ -93,15 +131,8 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
         textD = "Tremolo disabled";
     }
     // Autotune "pedal"
-    std::string autotuneIdx = std::to_string(synth->get_autotune_mode());
-    std::string autotuneText = std::string("Autotune: #") + autotuneIdx;
-    if (synth->get_autotune_mode() == AUTOTUNE_NONE) {
-        autotuneText += std::string(" (none)");
-    } else if (synth->get_autotune_mode() == AUTOTUNE_SMOOTH) {
-        autotuneText += std::string(" (smooth)");
-    } else if (synth->get_autotune_mode() == AUTOTUNE_FULL) {
-        autotuneText += std::string(" (full)");
-    }
+    std::string autotuneMode = synth->get_autotune_mode();
+    std::string autotuneText = std::string("Autotune: ") + autotuneMode;
     const char* textAutotune = autotuneText.c_str();
         
     // Draw pedals
@@ -127,7 +158,7 @@ void UserInterface::refresh_surface(WaveSynth* synth) {
     double lowerNoteFreqNorm = synth->get_normalized_frequency(NOTES[lowerNoteIdx]);
     float error = 0.0;
     SDL_Color noteColor = {220, 220, 255, 255};
-    if (lowerNoteIdx + 1 < NUM_NOTES) {
+    if (lowerNoteIdx + 1 < sizeof(NOTE_NAMES)/sizeof(NOTE_NAMES)) {
         double nextNoteFreqNorm = synth->get_normalized_frequency(NOTES[lowerNoteIdx + 1]);
         double freqDiffNorm = nextNoteFreqNorm - lowerNoteFreqNorm;
         float diffUpper = nextNoteFreqNorm - freqNormalized;
@@ -238,54 +269,6 @@ void UserInterface::round_corners(SDL_Rect rect) {
     SDL_RenderDrawPoint(renderer, rect.x, rect.y + rect.h - 1);
     SDL_RenderDrawPoint(renderer, rect.x + rect.w - 1, rect.y + rect.h - 1);
 }
-
-/*
- * Initial input and video settings
- */
-void UserInterface::setup(Configuration* cfg) {
-    
-    this->cfg = cfg;
-    
-    // Initialize SDL video mode
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-        fprintf(stderr, "Could not initialise SDL: %s\n", SDL_GetError());
-        exit(-1);
-    }
-    
-    // Create a window
-    window = SDL_CreateWindow("Theremin",
-                          SDL_WINDOWPOS_UNDEFINED,
-                          SDL_WINDOWPOS_UNDEFINED,
-                          window_w, window_h, 
-                          /*SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL*/ 0 );
-    if (!window) {
-        fprintf(stderr, "Couldn't create window: %s\n",
-                        SDL_GetError());
-        exit(1);
-    }
-    renderer = SDL_CreateRenderer(window, -1, 0);
-    
-    TTF_Init();
-    sans = TTF_OpenFont("LiberationSans-Regular.ttf", 16);
-    sansLarge = TTF_OpenFont("LiberationSans-Regular.ttf", 30);
-    
-    if (!cfg->b("realtime_display")) {
-        
-        // Constant black text on white background
-        SDL_Color black = {0, 0, 0, 255};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderClear(renderer);
-        draw_text("THEREMIN", 20, 20, black, sansLarge);
-        draw_text("Realtime display disabled.", 20, 60, black, sans);
-        SDL_RenderPresent(renderer);
-    }
-}
-
-void UserInterface::fetch_input(float *x, float *y) {
-    
-    *x = (float) mouse_x / window_w;
-    *y = (float) (window_h - mouse_y) / window_h;
-} 
 
 void UserInterface::clean_up() {
     

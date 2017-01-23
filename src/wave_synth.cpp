@@ -10,7 +10,39 @@ void WaveSynth::init(Configuration* cfg) {
     
     sample_rate = cfg->i("sample_rate");
     volume = cfg->i("max_volume");
-    frequency = LOWEST_NOTE;
+    waveform = cfg->str("waveform");
+    period = sample_rate / frequency;
+    
+    // Find the correct index of the default waveform
+    for (int i = 0; i < sizeof(WAVE_NAMES)/sizeof(*WAVE_NAMES); i++) {
+        if (WAVE_NAMES[i] == waveform) {
+            waveformIdx = i;
+            break;
+        }
+    }
+    
+    std::string lowest_note = cfg->str("lowest_note");
+    for (int i = 0; i < sizeof(NOTE_NAMES)/sizeof(*NOTE_NAMES); i++) {
+        if (NOTE_NAMES[i] == lowest_note) {
+            frequency = NOTES[i];
+            minFreq = frequency;
+            break;
+        }
+    }
+    numOctaves = cfg->i("num_octaves");
+    maxVol = cfg->i("max_volume");
+    maxVolumeChangePerTick = cfg->d("max_volume_change_per_tick");
+    
+    autotuneMode = cfg->str("autotune_mode");
+    
+    waveSmoothing.waveSwitch = false;
+    waveSmoothing.lastWaveAddOffset = 0.0;
+    waveSmoothing.lastWaveTotalOffset = 0.0;
+    waveSmoothing.wavePeriod = period;
+    
+    tremolo = cfg->b("tremolo_enabled");
+    tremoloFrequency = cfg->d("tremolo_frequency");
+    tremoloIntensity = cfg->d("tremolo_intensity");
 }
 
 /*
@@ -39,15 +71,15 @@ uint16_t WaveSynth::wave(double t)
             tremoloOffset = t;
         }
         // Add a sine wave to the volume in order to modulate it
-        volumeToUse = volume + TREMOLO_INTENSITY * volume 
-            * std::sin(t * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY)
-            - tremoloOffset * 2 * M_PI / (sample_rate / TREMOLO_FREQUENCY));
-        volumeToUse = std::min(volumeToUse, (double) MAX_VOLUME);
+        volumeToUse = volume + tremoloIntensity * volume 
+            * std::sin(t * 2 * M_PI / (sample_rate / tremoloFrequency)
+            - tremoloOffset * 2 * M_PI / (sample_rate / tremoloFrequency));
+        volumeToUse = std::min(volumeToUse, (double) maxVol);
         volumeToUse = std::max(volumeToUse, 0.0);
         
         // If tremolo is to fade out, 
         // check if now is an appropriate time to smoothly stop the effect
-        if (tremoloExiting && std::abs(volumeToUse - volume) <= MAX_VOLUME / 1000.0) {
+        if (tremoloExiting && std::abs(volumeToUse - volume) <= maxVol / 1000.0) {
             tremolo = false;
         }
     } else {
@@ -156,7 +188,8 @@ void WaveSynth::set_tremolo(bool shouldTremolo) {
  */
 void WaveSynth::switch_waveform() {
     
-    waveform = (waveform % 10) + 1;
+    waveformIdx = (waveformIdx + 1) % (sizeof(WAVE_NAMES)/sizeof(*WAVE_NAMES));
+    waveform = WAVE_NAMES[waveformIdx];
     
     // a change of the wave offset is unneccessary
     // as the wave transition will not be continous anyway
@@ -215,10 +248,10 @@ void WaveSynth::update_frequency(float value) {
 
     if (value != -1) {
         if (octaveOffset) {
-            value += 1.0 / NUM_OCTAVES;
+            value += 1.0 / numOctaves;
         }
         
-        frequency = LOWEST_NOTE * std::pow(2, NUM_OCTAVES * value);
+        frequency = minFreq * std::pow(2, numOctaves * value);
     }
     
     if (value == -1 || oldFrequency != frequency) {
@@ -229,7 +262,7 @@ void WaveSynth::update_frequency(float value) {
     period = sample_rate / frequency;
     waveSmoothing.wavePeriod = period;
     
-    if (LOG_FREQ) {
+    if (cfg->b("log_freq")) {
         std::cout << frequency << std::endl;
     }
 }
@@ -243,7 +276,7 @@ void WaveSynth::update_frequency(float value) {
  * actual volume approach the target value.
  */
 void WaveSynth::update_volume(float value) {
-    volumeTarget = MAX_VOLUME * value;
+    volumeTarget = maxVol * value;
 }
 
 /*
@@ -253,9 +286,9 @@ void WaveSynth::update_volume(float value) {
 void WaveSynth::volume_tick() {
     double volumeDiff;
     if (volumeTarget - volume > 0) {
-        volumeDiff = std::min(MAX_VOLUME_CHANGE_PER_TICK, volumeTarget - volume);
+        volumeDiff = std::min(maxVolumeChangePerTick, volumeTarget - volume);
     } else {
-        volumeDiff = std::max(-MAX_VOLUME_CHANGE_PER_TICK, volumeTarget - volume);
+        volumeDiff = std::max(-maxVolumeChangePerTick, volumeTarget - volume);
     }
     volume += volumeDiff;
 }
@@ -281,19 +314,19 @@ void WaveSynth::set_wave_offset(double t, WaveSmoothing* smoothing) {
     smoothing->lastWaveAddOffset = currentAddOffset;    
 }
 
-void WaveSynth::set_autotune_mode(int mode) {
+void WaveSynth::set_autotune_mode(std::string mode) {
     autotuneMode = mode;
 }
 
 double WaveSynth::get_max_frequency() {
-    return LOWEST_NOTE * std::pow(2, NUM_OCTAVES + 1);
+    return minFreq * std::pow(2, numOctaves + 1);
 }
 
 double WaveSynth::get_normalized_frequency(double f) {
     if (f <= 0)
         return 0.0;
     else 
-        return (1.0 / (NUM_OCTAVES + 1)) * std::log2(f / LOWEST_NOTE);
+        return (1.0 / (numOctaves + 1)) * std::log2(f / minFreq);
 }
 
 bool WaveSynth::is_octave_offset() {
@@ -304,11 +337,11 @@ bool WaveSynth::is_tremolo_enabled() {
     return tremolo;
 }
 
-int WaveSynth::get_waveform() {
+std::string WaveSynth::get_waveform() {
     return waveform;
 }
 
-int WaveSynth::get_autotune_mode() {
+std::string WaveSynth::get_autotune_mode() {
     return autotuneMode;
 }
 
@@ -322,7 +355,7 @@ int WaveSynth::get_autotune_mode() {
 int WaveSynth::get_nearest_lower_note_index() {
     
     int lower = 0;
-    int upper = NUM_NOTES - 1;
+    int upper = sizeof(NOTE_NAMES)/sizeof(*NOTE_NAMES) - 1;
     
     while (upper - lower > 1) {
         
