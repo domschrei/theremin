@@ -1,3 +1,3 @@
 name: domschrei/theremin
-markdown: redcarpet
 theme: jekyll-theme-midnight
+show_downloads: true
