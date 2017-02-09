@@ -44,26 +44,26 @@ Also, install the daemon [brickd](https://www.tinkerforge.com/en/doc/Software/Br
 ### Sensor setup
 
 Execute
-```
-sudo brickd --daemon
-```
-and open `brickv`. You should now be able to connect to your master brick and see the connected two distance sensors. Get their three-figure UIDs (for example, `uvw` and `xyz`) and replace the definitions of `UID_FREQUENCY` and `UID_VOLUME` inside the configuration file `theremin.cfg` with your UIDs.
-```
-/* Sensor settings */
 
-// Insert 1st bricklet UID here [alphanumeric string of size 3]
-uid_frequency = "uvw"; 
-// Insert 2nd bricklet UID here [alphanumeric string of size 3]
-uid_volume = "xyz";
-```
+    sudo brickd --daemon
+
+and open `brickv`. You should now be able to connect to your master brick and see the connected two distance sensors. Get their three-figure UIDs (for example, `uvw` and `xyz`) and replace the definitions of `UID_FREQUENCY` and `UID_VOLUME` inside the configuration file `theremin.cfg` with your UIDs.
+
+    /* Sensor settings */
+
+    // Insert 1st bricklet UID here [alphanumeric string of size 3]
+    uid_frequency = "uvw"; 
+    // Insert 2nd bricklet UID here [alphanumeric string of size 3]
+    uid_volume = "xyz";
+
 (It does not matter which of the sensors is assigned to which constant, as you can just swap them.)
 
 ### Compile and run
 
 You can now compile the Theremin application by executing
-```
-bash build.sh
-```
+
+    bash build.sh
+
 inside the application's root folder, which should let an executable called `theremin` appear.
 
 Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin`.) 
