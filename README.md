@@ -1,9 +1,5 @@
 # A sensor-driven, digital Theremin
 
-[Test](test.html)
-
-[Test](test.md)
-
 ![My Theremin-like instrument with its periphery](http://dominikschreiber.de/theremin/theremin-periphery-small.jpg)
 
 Out of fun and interest, I built a [Theremin](https://en.wikipedia.org/wiki/Theremin)-like instrument, being played entirely touchless with both hands. The idea was to use simple distance sensors with a digital output to do the audio synthesis on a computer. This allows for interesting and fun ways to tinker with the instrument, such as "auto-tune", different audio waveforms or multiple tones at the same time. You can watch and listen to a little demo [here](http://dominikschreiber.de/vid/theremin-demo.webm) (.webm video), although I'm not playing very well yet and the theremin sound has already improved since.
