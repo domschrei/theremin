@@ -1,12 +1,8 @@
-# Theremin Blog / Creation History
-
-***
+# Blog
 
 *TL;DR:* I developed a sensor-driven, Theremin-like instrument powered by a plain old computer with some interesting and fun features (see [this little demo](http://dominikschreiber.de/vid/theremin-demo.webm)).
 
 _Used technologies: [Tinkerforge](https://www.tinkerforge.com/de/doc/), C++ with [SDL](http://libsdl.org/) libraries and [CMake](https://cmake.org/) for building_
-
-***
 
 ![All of the periphery I use for playing: The instrument itself, a triple foot switch, and some cupboard "gloves" which look idiotic but provide an optimal surface for the sensors](http://dominikschreiber.de/theremin/theremin-periphery-small.jpg)
 _All of the periphery I use for playing: The instrument itself, a triple foot switch, and some cupboard "gloves" which look idiotic but provide an optimal surface for the sensors_
