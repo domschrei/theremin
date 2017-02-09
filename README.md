@@ -1,8 +1,8 @@
 # A sensor-driven, digital Theremin
 
-![Test][test.html]
+![Test](test.html)
 
-![Test][test.md]
+![Test](test.md)
 
 ![My Theremin-like instrument with its periphery](http://dominikschreiber.de/theremin/theremin-periphery-small.jpg)
 
