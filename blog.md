@@ -1,8 +1,8 @@
 # Blog
 
-*TL;DR:* I developed a sensor-driven, Theremin-like instrument powered by a plain old computer with some interesting and fun features (see [this little demo](http://dominikschreiber.de/vid/theremin-demo.webm)).
+*TL;DR:* I developed a sensor-driven, Theremin-like instrument powered by a plain old computer with some interesting and fun features. And it actually works!
 
-_Used technologies: [Tinkerforge](https://www.tinkerforge.com/de/doc/), C++ with [SDL](http://libsdl.org/) libraries and [CMake](https://cmake.org/) for building_
+_Used technologies: [Tinkerforge](https://www.tinkerforge.com/de/doc/), C++ with [SDL](http://libsdl.org/) libraries, [Libconfig](http://www.hyperrealm.com/libconfig/) for configuration and [CMake](https://cmake.org/) for building_
 
 ![All of the periphery I use for playing: The instrument itself, a triple foot switch, and some cupboard "gloves" which look idiotic but provide an optimal surface for the sensors](http://dominikschreiber.de/theremin/theremin-periphery-small.jpg)
 _All of the periphery I use for playing: The instrument itself, a triple foot switch, and some cupboard "gloves" which look idiotic but provide an optimal surface for the sensors_
@@ -76,4 +76,4 @@ Due to the purely digital audio synthesis, there are many possibilities to tweak
 
 I wasn't sure if I could build a device out of these sensors which could actually be considered an _instrument_, and not only a toy or a funny gadget. I practised a bit and am confident to say that it can actually be used as an instrument, with different possible playstyles and the potential to play many melodies (although maybe not the fastest and most complex ones). Of course, there are major drawbacks of my instrument compared to a conventional theremin, namely the lower accuracy and less opportunities to do fine, subtle variations (like tremoli). But there are also some benefits like its potential to tinker with the audio output however you wish and, as a consequence, creative new playstyles like playing in two voices or with an auto-tune enabled. (Also, its low price is a plus.)
 
-If you would like to build such an instrument of your own, just read the README on [this repository's main page](https://github.com/domschrei/theremin) to learn how to get started. The code is GPL-licenced, so you are free to use, modify and redistribute it as long as the modified code is accessible and usable under the same terms. If you have a problem or an idea to share, please do so on the github page – I am looking forward to hearing from you!  
+If you would like to build such an instrument of your own, just read the [construction manual](manual.html) to learn how to get started. The code is GPL-licenced, so you are free to use, modify and redistribute it as long as the modified code is accessible and usable under the same terms. If you have a problem or an idea to share, please do so [on the github page](https://github.com/domschrei/theresa) – I am looking forward to hearing from you!  
