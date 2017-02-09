@@ -21,5 +21,5 @@ On the computer (e.g. a Raspberry Pi), an application manages the instrument by:
 ![The application's UI in action](http://dominikschreiber.de/theremin/ui.jpg)  
 _The application's UI in action_
 
-_If you are interested in building such an instrument for yourself, visit the [manual page](manual.html)._  
-_If you are interested in the process of creating the whole thing, visit the [blog page](blog.html) where I explain it in detail._
+If you are interested in building such an instrument for yourself, visit the [manual page](manual.html).  
+If you are interested in the process of how I developed the whole thing, visit the [blog page](blog.html) where I explain it in detail.
