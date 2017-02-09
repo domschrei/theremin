@@ -1,8 +1,8 @@
-# Blog
+# Theremin Blog / Creation History
 
 ***
 
-*TL;DR:* I developed a sensor-driven, Theremin-like instrument powered by a plain old computer with some interesting and fun features (see [this little demo](http://dominikschreiber.de/vid/theremin-demo.webm)). If you want to build one yourself, visit [the main page of this repository](https://github.com/domschrei/theremin).
+*TL;DR:* I developed a sensor-driven, Theremin-like instrument powered by a plain old computer with some interesting and fun features (see [this little demo](http://dominikschreiber.de/vid/theremin-demo.webm)).
 
 _Used technologies: [Tinkerforge](https://www.tinkerforge.com/de/doc/), C++ with [SDL](http://libsdl.org/) libraries and [CMake](https://cmake.org/) for building_
 
