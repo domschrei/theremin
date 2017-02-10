@@ -47,6 +47,7 @@ However, it should not really be a problem to get it running on other platforms,
 Install `gcc`, `make`, `cmake` and the libraries [SDL2](https://www.libsdl.org/) (the core library with version >= 2.0.4 and the _ttf_ addition) and [libconfig](http://www.hyperrealm.com/libconfig/) (should be in every distribution's repositories – don't forget installing the `*-dev` packages as well, if available).  
 Beware: SDL2.0.4 is not available yet in some repositories. For example, you have to build it from sources on the Raspberry Pi 3. This takes about half an hour but shouldn't be complicated otherwise:  
 Download the sources from the homepage ([main library](https://www.libsdl.org/release/SDL2-2.0.5.zip), [ttf addition](https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.zip)) and do the following steps, first for the main library and then for the addition:
+
 * unzip the archive and cd into the directory 
 * execute the commands `./configure`, `make`, and `sudo make install` (if something fails, look at the error description, you might be missing a dependency)
 
