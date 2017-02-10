@@ -7,7 +7,7 @@ _Used technologies: [Tinkerforge](https://www.tinkerforge.com/de/doc/), C++ with
 ![All of the periphery I use for playing: The instrument itself, a triple foot switch, and some cupboard "gloves" which look idiotic but provide an optimal surface for the sensors](http://dominikschreiber.de/theremin/theremin-periphery-small.jpg)
 _All of the periphery I use for playing: The instrument itself, a triple foot switch, and some cupboard "gloves" which look idiotic but provide an optimal surface for the sensors_
 
-Over the course of the last two weeks, I developed a sensor-driven, Theremin-like instrument, being played completely touchless. In the context of a study project in 2015, I got in touch with <a href="https://www.tinkerforge.com/en/">Tinkerforge</a> sensors providing high-level access to interesting sensor data. At that time I thought that it would be neat to make some kind of Theremin out of the distance sensors. Now, I actually went through with it and developed a framework featuring fun and interesting ways to play the instrument.
+Over the course of about two weeks, I developed a sensor-driven, Theremin-like instrument, being played completely touchless. In the context of a study project in 2015, I got in touch with [Tinkerforge](https://www.tinkerforge.com/en/) sensors providing high-level access to interesting sensor data. At that time I thought that it would be neat to make some kind of Theremin out of the distance sensors. Now, I actually went through with it and developed a framework featuring fun and interesting ways to play the instrument.
 
 ## A software proof-of-concept
 
@@ -33,7 +33,7 @@ Concerning the Tinkerforge sensors, I had to install the daemon `brickd` (needed
 
 ## Connecting
 
-![The blueprint for all the components](http://dominikschreiber.de/theremin/blueprint.png)
+![The blueprint for all the components](http://dominikschreiber.de/theremin/blueprint_weiss.png)
 _A blueprint of the different components_
 
 When first connecting the sensor data from the Tinkerforge API with my application's audio output, I was disappointed. The latency was far too high (maybe a fourth of a second of reaction time until a change of the hand's position resulted in a different tone), and there was very much noise and many unjustifiable frequency jumps.
@@ -58,6 +58,8 @@ Now I had a nice little black-box of sensors. Time to abstract from the peripher
 
 ## Enhancing
 
+### Intonation
+
 A difficult part of playing the instrument is intonation, as there is no feedback whether you have hit the right tone – apart from the audio that plays. It is challenging (and fun!) to learn how much you have to move your hand to get a third, a fourth and so on. To support the player with finding the right notes, I added a real-time display where the current note as well as some other information is shown. The two bars visualize the relative volume and frequency at the moment, and inside the black square the note name which most closely fits the current frequency is shown. The more exact the frequency fits the note, the brighter it is displayed. The display also shows when events like the ones from the foot switch are triggered.
 
 ![A simple interface showing information about the instrument's current state](http://dominikschreiber.de/theremin/ui.jpg)  
@@ -67,6 +69,8 @@ For the fine-tuning of the frequency, I have implemented different types of freq
 
 ![How the different modes change the time-dependant frequency](http://dominikschreiber.de/theremin/frequency-alignment.png)  
 _How the different modes change the time-dependant frequency_
+
+### Effects
 
 Due to the purely digital audio synthesis, there are many possibilities to tweak the instrument. Being triggered by one of the pedals, the currently playing note can be "locked" so that it will continue to play even if you move your hand. This way, you can play in two voices, with a sustained note and a melody voice. With another pedal, the currently playing note (not the locked one, though, if there is one) will be played an octave higher. This widens the pitch range of the instrument by another octave and enables easy octave jumps in certain songs. The third pedal changes the waveform. I implemented some pretty random waveforms (amongst others, there is a _singleslit_ waveform and a narrowly scaled _gauss_ function) with very varying results – some sound very aggressive while others are soft and smooth.
 
