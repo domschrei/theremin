@@ -9,10 +9,12 @@ The most important information about building and using the instrument
         * [Tinkerforge software](#tinkerforge-software)
         * [Sensor setup](#sensor-setup)
         * [Compile and run](#compile-and-run)
+    * [Raspberry Pi Configuration](#raspberry-pi-configuration)
 * [Using and tweaking](#using-and-tweaking)
     * [Foot switch](#foot-switch)
     * [Autotune modes](#autotune-modes)
     * [Configuration](#configuration)
+        * [Performance tuning](#performance-tuning)
 
 ***
 
@@ -86,8 +88,28 @@ inside the application's root folder, which should let an executable called `the
 
 Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin`.) 
 
-The USB foot switch should be plug-and-play; for correct input mapping, see the following section, subsection "Foot switch".
+The USB foot switch should be plug-and-play; for correct input mapping, see the [foot switch](#foot-switch) subsection.
 
+### Raspberry Pi Configuration
+
+As previously mentioned, the Raspberry Pi (3) can be used to run the application, which allows a tidy and self-contained system. For this purpose, I recommend to run the Raspberry without a display and to make the application automatically start on loading the desktop environment. (The Raspi needs to boot into the Desktop Environment nonetheless, because an X window is created to capture the inputs from the foot switches and other input devices.)
+
+To autostart the application, create a bash script inside `/etc/xdg/lxsession/LXDE-pi/autostart` (the name can be chosen freely, e.g. `theremin.sh`) with the following contents:
+
+    #!/bin/bash
+    cd /path/to/theresa
+    LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin
+
+Replace `/path/to/theresa` accordingly. Don't forget to make the script executable:
+
+    chmod +x theremin.sh
+
+The application should launch after a reboot. If it doesn't, debug the script by appending
+
+    > ~/theremin_log 2>&1
+
+to its last line and reading the log `~/theremin_log` after a reboot.
+    
 ## Using and tweaking
 
 To properly play the instrument, the sensors should be fastened and aligned. A 90 degree approach as shown in the blueprint works fine, with the frequency sensor pointing upwards and the volume sensor pointing to the side. Of course, the sensors can be built into a little box just like I have done (I could have taken a much smaller box if it wasn't for the long connection cables I bought).
@@ -114,7 +136,12 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 ### Configuration
 
-If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, many things can be tweaked by editing the previously mentioned file `theremin.cfg`. To tune performance (and trade against better audio quality and/or lower latency), especially the real-time display can be turned off (`realtime_display`) or its refresh rate can be decreased (`task_frequency_display_refresh`). Additionally, the setting `sample_rate` as well as the other different task frequencies (`task_frequency_*`) can be adjusted, resulting in a better performance as well.
+If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, many things can be tweaked by editing the previously mentioned file `theremin.cfg`. Due to the detailed comments inside, changing the configuration settings should be pretty self-explanatory.
 
 Just restart the application for the changes to take effect.
+
+#### Performance tuning
+
+To tune performance (and trade against better audio quality and/or lower latency), especially the real-time display can be turned off (`realtime_display`) or its refresh rate can be decreased (`task_frequency_display_refresh`). Additionally, the setting `sample_rate` as well as the other different task frequencies (`task_frequency_*`) can be adjusted, resulting in a better performance as well.
+
  
