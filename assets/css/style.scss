@@ -1,6 +1,8 @@
 ---
 ---
 
+@import "{{ site.theme }}";
+
 #header nav li a.mainlink {
     color: white;
     border: none;
@@ -26,5 +28,3 @@
 h4 {
     font-weight: bold;
 }
-
-@import "{{ site.theme }}";
