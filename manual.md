@@ -28,7 +28,7 @@ What you will need:
 
 * **A computer capable of running the application**  
 (Any better-than-potato computer with USB input and audio output should do the job of running the application. I can also confirm that a Raspberry Pi 3 (Model B) with default Raspbian (_Pixel_ Environment) runs the application well, although the realtime info display needs to be turned off in order to maintain the default sample rate. Use a GNU/Linux system for better support from my side.)
-* **Two [ultrasonic distance bricklets](https://www.tinkerforge.com/de/doc/Hardware/Bricklets/Distance_US.html#distance-us-bricklet) and the [master brick](https://www.tinkerforge.com/de/doc/Hardware/Bricks/Master_Brick.html)** mentioned above  
+* **Two [ultrasonic distance bricklets](https://www.tinkerforge.com/de/doc/Hardware/Bricklets/Distance_US.html#distance-us-bricklet) and a [master brick](https://www.tinkerforge.com/de/doc/Hardware/Bricks/Master_Brick.html)**  
 (also buy the corresponding bricklet ↔ brick connection cables)
 * **A triple foot switch**
 (like [this one](https://www.amazon.de/dp/B00WS2GZU2/ref=cm_sw_em_r_mt_dp_TK9GybS27T1YN); there are many providers for this specific piece, and others should work fine, too, as long as they are mapped (or mappable) to any printable character) 
