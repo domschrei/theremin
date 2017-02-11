@@ -96,7 +96,7 @@ The USB foot switch should be plug-and-play; for correct input mapping, see the 
 
 As previously mentioned, the Raspberry Pi (3) can be used to run the application, which allows a tidy and self-contained system. For this purpose, I recommend to run the Raspberry without a display and to make the application automatically start on loading the desktop environment. (The Raspi needs to boot into the Desktop Environment nonetheless, because an X window is created to capture the inputs from the foot switches and other input devices.)
 
-To autostart the application, create a bash script inside `/etc/xdg/lxsession/LXDE-pi/autostart` (the name can be chosen freely, e.g. `theresa.sh`) with the following contents:
+To autostart the application, create a bash script inside `/etc/xdg/autostart` (the name can be chosen freely, e.g. `theresa.sh`) with the following contents:
 
     #!/bin/bash
     cd /home/pi/theresa
