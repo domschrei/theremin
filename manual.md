@@ -69,7 +69,7 @@ Execute
 
     sudo brickd --daemon
 
-and open `brickv`. You should now be able to connect to your master brick and see the connected two distance sensors. Get their three-figure UIDs (for example, `uvw` and `xyz`) and replace the definitions of `UID_FREQUENCY` and `UID_VOLUME` inside the configuration file `theremin.cfg` with your UIDs.
+and open `brickv`. You should now be able to connect to your master brick and see the connected two distance sensors. Get their three-figure UIDs (for example, `uvw` and `xyz`) and replace the definitions of `UID_FREQUENCY` and `UID_VOLUME` inside the configuration file `theresa.cfg` with your UIDs.
 
     /* Sensor settings */
 
@@ -86,9 +86,9 @@ You can now compile the Theremin application by executing
 
     bash build.sh
 
-inside the application's root folder, which should let an executable called `theremin` appear.
+inside the application's root folder, which should let an executable called `theresa` appear.
 
-Now, with `brickd` still running, you can execute the application (`./theremin`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin`.) 
+Now, with `brickd` still running, you can execute the application (`./theresa`) and play Theremin! (If the program doesn't launch but instead complains about a missing library, start the program with the command `LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theresa`.) 
 
 The USB foot switch should be plug-and-play; for correct input mapping, see the [foot switch](#foot-switch) subsection.
 
@@ -96,21 +96,17 @@ The USB foot switch should be plug-and-play; for correct input mapping, see the 
 
 As previously mentioned, the Raspberry Pi (3) can be used to run the application, which allows a tidy and self-contained system. For this purpose, I recommend to run the Raspberry without a display and to make the application automatically start on loading the desktop environment. (The Raspi needs to boot into the Desktop Environment nonetheless, because an X window is created to capture the inputs from the foot switches and other input devices.)
 
-To autostart the application, create a bash script inside `/etc/xdg/lxsession/LXDE-pi/autostart` (the name can be chosen freely, e.g. `theremin.sh`) with the following contents:
+To autostart the application, create a bash script inside `/etc/xdg/lxsession/LXDE-pi/autostart` (the name can be chosen freely, e.g. `theresa.sh`) with the following contents:
 
     #!/bin/bash
-    cd /path/to/theresa
-    LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theremin
+    cd /home/pi/theresa
+    LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theresa > ~/.theresa_log 2>&1
 
-Replace `/path/to/theresa` accordingly. Don't forget to make the script executable:
+Replace `/home/pi/theresa` accordingly if you cloned the repository from a differing directory. Don't forget to make the script executable:
 
-    chmod +x theremin.sh
+    chmod +x theresa.sh
 
-The application should launch after a reboot. If it doesn't, debug the script by appending
-
-    > ~/theremin_log 2>&1
-
-to its last line and reading the log `~/theremin_log` after a reboot.
+The application should launch after a reboot. If it doesn't, debug the script by reading the log file `~/.theresa_log` after a reboot.
     
 ## Using and tweaking
 
@@ -126,7 +122,7 @@ The foot switch has the following options:
 * Central pedal: Until the pedal gets pressed another time, all tones will be played exactly one octave higher. This can be used to extend the pitch range of the instrument.
 * Right pedal: Each press switches the waveform which is being used for audio synthesis. I implemented some pretty random waveforms, with varying results.
 
-By default, the foot switch used by me just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch). You can change the triggering characters for specific actions inside the configuration file `theremin.cfg` under the paragraph `Input settings`.
+By default, the foot switch used by me just puts out the letters "a", "b" and "c" respectively, just like a keyboard. Hence, you can use the keys of your keyboard as well (which, however, is much less convenient than a foot switch). You can change the triggering characters for specific actions inside the configuration file `theresa.cfg` under the paragraph `Input settings`.
 
 ### Autotune modes
 
@@ -138,7 +134,7 @@ The application supports some types of frequency aligning: `none`, `smooth` and 
 
 ### Configuration
 
-If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, many things can be tweaked by editing the previously mentioned file `theremin.cfg`. Due to the detailed comments inside, changing the configuration settings should be pretty self-explanatory.
+If your computer can't handle the program without audibly cracking or if you aren't happy with some of the default settings, many things can be tweaked by editing the previously mentioned file `theresa.cfg`. Due to the detailed comments inside, changing the configuration settings should be pretty self-explanatory.
 
 Just restart the application for the changes to take effect.
 
