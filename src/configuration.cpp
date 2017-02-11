@@ -6,7 +6,7 @@
 void Configuration::load() {
     
     try {
-        config.readFile("theremin.cfg");
+        config.readFile("theresa.cfg");
     } catch (const FileIOException &fioex) {
         std::cerr << "I/O error while reading file." << std::endl;
         exit(1);
