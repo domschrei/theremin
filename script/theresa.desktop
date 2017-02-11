@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Theresa
+Comment=Theremin Sensor Application
+Exec=/home/pi/theresa/theresa.sh
+Icon=system
+StartupNotify=true
+Terminal=false
+Type=Application

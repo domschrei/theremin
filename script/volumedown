@@ -1,0 +1,5 @@
+vol=`amixer sget PCM|grep -oE '\[[0-9]+%\]'|grep -oE "[0-9]+"`
+echo $vol
+vol=$(($vol-5))
+echo $vol
+amixer sset PCM "$vol"%
