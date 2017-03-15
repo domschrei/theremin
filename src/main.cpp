@@ -21,6 +21,9 @@ int periodInputSensor;
 int periodInputGeneral;
 int periodDisplayRefresh;
 
+/*
+ * To be called at program exit.
+ */
 void finish() {
     
     audio.set_exiting(true);
@@ -35,10 +38,69 @@ void finish() {
     delete cfg;
 }
 
+/*
+ * Help function called at each n-th iteration processing the secondary
+ * (i.e. keyboard press) input events.
+ */
+void process_input(std::vector<std::string> actions) {
+    
+    for (int actionIdx = 0; actionIdx < actions.size(); actionIdx++) {
+        std::string action = actions[actionIdx];
+        
+        if (action == cfg->str(ACTION_SUSTAIN_NOTE)) {
+            if (!synth.is_secondary_frequency_active()) {
+                synth.set_secondary_frequency(synth.frequency);
+            } else {
+                synth.set_secondary_frequency(0.0);
+            }
+            
+        } else if (action == cfg->str(ACTION_OCTAVE_UP)) {
+            if (!synth.is_octave_offset()) {
+                synth.set_octave_offset(true);
+            } else {
+                synth.set_octave_offset(false);
+            }
+            
+        } else if (action == cfg->str(ACTION_CHANGE_WAVEFORM)) {
+            synth.switch_waveform();
+            
+        } else if (action == cfg->str(ACTION_AUTOTUNE_NONE)) {
+            synth.set_autotune_mode(AUTOTUNE_NONE);
+            
+        } else if (action == cfg->str(ACTION_AUTOTUNE_SMOOTH)) {
+            synth.set_autotune_mode(AUTOTUNE_SMOOTH);
+            
+        } else if (action == cfg->str(ACTION_AUTOTUNE_FULL)) {
+            synth.set_autotune_mode(AUTOTUNE_FULL);
+            
+        } else if (action == cfg->str(ACTION_TREMOLO)) {
+            synth.set_tremolo(!synth.is_tremolo_enabled());
+        
+        } else if (action == cfg->str(ACTION_RECORDING_REPLAYING)) {
+            if (!audio.is_recording() && !audio.is_replaying()) {
+                audio.start_recording();
+            } else if (audio.is_recording() && !audio.is_replaying()) {
+                audio.stop_recording();
+                audio.start_replaying();
+            } else if (!audio.is_recording()) {
+                audio.stop_replaying();
+            } else {
+                std::cerr << "Illegal recording/replaying configuration"
+                        " reached." << std::endl;
+                exit(1);
+            }
+        }
+    }
+}
+
+/*
+ * Called every iteration. Processes input events, synthesizes audio
+ * and refreshes the graphical display.
+ */
 void main_loop(int *t) {
     
     /*
-     * Process input to adjust volume and frequency
+     * Process primary input to adjust volume and frequency
      */
     if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_MOUSE) {
         
@@ -71,50 +133,16 @@ void main_loop(int *t) {
         exit(1);
     }    
     
+    /*
+    * Process secondary input (by keyboard or foot switch)
+    */
     if (*t % periodInputGeneral == 0) {
-        /*
-        * Process key input (by keyboard or foot switch)
-        */
-        std::vector<std::string> actions = userInterface.poll_events();
-        for (int actionIdx = 0; actionIdx < actions.size(); actionIdx++) {
-            std::string action = actions[actionIdx];
-            
-            if (action == cfg->str(ACTION_SUSTAIN_NOTE)) {
-                if (!synth.is_secondary_frequency_active()) {
-                    synth.set_secondary_frequency(synth.frequency);
-                } else {
-                    synth.set_secondary_frequency(0.0);
-                }
-                
-            } else if (action == cfg->str(ACTION_OCTAVE_UP)) {
-                if (!synth.is_octave_offset()) {
-                    synth.set_octave_offset(true);
-                } else {
-                    synth.set_octave_offset(false);
-                }
-                
-            } else if (action == cfg->str(ACTION_CHANGE_WAVEFORM)) {
-                synth.switch_waveform();
-                
-            } else if (action == cfg->str(ACTION_AUTOTUNE_NONE)) {
-                synth.set_autotune_mode(AUTOTUNE_NONE);
-                
-            } else if (action == cfg->str(ACTION_AUTOTUNE_SMOOTH)) {
-                synth.set_autotune_mode(AUTOTUNE_SMOOTH);
-                
-            } else if (action == cfg->str(ACTION_AUTOTUNE_FULL)) {
-                synth.set_autotune_mode(AUTOTUNE_FULL);
-                
-            } else if (action == cfg->str(ACTION_TREMOLO)) {
-                synth.set_tremolo(!synth.is_tremolo_enabled());
-            }
-        }
-        
+        process_input(userInterface.poll_events());
     }
     
     /*
-     * Create a new audio sample and sacrifice it to the SDL audio gods.
-     * If the gods decline the sacrifice, move one step backwards
+     * Create a new audio sample and offer it to the SDL buffer.
+     * If it is being declined, move one step backwards
      * to keep the waveform continuous.
      */
     if (audio.new_sample(synth.wave(*t))) {
@@ -140,6 +168,10 @@ void main_loop(int *t) {
         userInterface.refresh_surface();
     }
     
+    /*
+     * Don't cause an integer overflow (might happen if the application
+     * runs for several hours with sufficient sample rate)
+     */
     if (*t == INT32_MAX) {
          *t = 0;
     }
@@ -160,7 +192,7 @@ int main(int argc, const char* argv[])
     
     // Basic input (i.e. mouse and keys / footswitch)
     // and graphical output
-    userInterface.setup(cfg, &synth);
+    userInterface.setup(cfg, &synth, &audio);
     
     // Sensor input
     if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_SENSOR) {

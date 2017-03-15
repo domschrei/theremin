@@ -7,10 +7,11 @@
 /*
  * Initial input and video settings
  */
-void UserInterface::setup(Configuration* cfg, WaveSynth* synth) {
+void UserInterface::setup(Configuration* cfg, WaveSynth* synth, Audio* audio) {
     
     this->cfg = cfg;
     this->synth = synth;
+    this->audio = audio;
     
     // Initialize SDL video mode
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -159,6 +160,17 @@ void UserInterface::draw_effect_labels() {
             + "/" + cfg->str(ACTION_AUTOTUNE_FULL);
     strAutotune += "] ";
     strAutotune += std::string("Autotune: ") + synth->get_autotune_mode();
+    
+    std::string strRecording = "[";
+    strRecording += cfg->str(ACTION_RECORDING_REPLAYING);
+    strRecording += "] ";
+    if (audio->is_replaying()) {
+        strRecording += "Replaying";
+    } else if (audio->is_recording()) {
+        strRecording += "Recording";
+    } else {
+        strRecording += "Not replaying/recording";
+    }
         
     // Draw the effect labels ("pedals")
     draw_pedal(strSustainNote.c_str(), 350, 15, synth->is_secondary_frequency_active());
@@ -166,6 +178,7 @@ void UserInterface::draw_effect_labels() {
     draw_pedal(strTremolo.c_str(), 350, 95, synth->is_tremolo_enabled());
     draw_pedal(strWaveform.c_str(), 350, 135, lastWaveform != synth->get_waveform());
     draw_pedal(strAutotune.c_str(), 350, 175, lastAutotuneMode != synth->get_autotune_mode());
+    draw_pedal(strRecording.c_str(), 350, 215, audio->is_replaying() || audio->is_recording());
     
     // Remember current state for next cycle
     lastWaveform = synth->get_waveform();

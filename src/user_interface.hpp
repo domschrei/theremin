@@ -7,11 +7,12 @@
 #include "const.h"
 #include "configuration.hpp"
 #include "wave_synth.hpp"
+#include "audio.hpp"
 
 class UserInterface {
     
 public:
-    void setup(Configuration* cfg, WaveSynth* synth);
+    void setup(Configuration* cfg, WaveSynth* synth, Audio* audio);
     std::vector<std::string> poll_events();
     void last_cursor_position(float *x, float *y);
     void refresh_surface();
@@ -20,6 +21,7 @@ public:
 private:
     Configuration* cfg;
     WaveSynth* synth;
+    Audio* audio;
     
     float mouse_x;
     float mouse_y;

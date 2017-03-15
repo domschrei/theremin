@@ -56,6 +56,30 @@ void Audio::start_playing() {
 }
 
 /*
+ * The following methods change the corresponding state
+ * of the audio buffers. Some recording/replaying combinations
+ * may lead to undefined behaviour.
+ */
+void Audio::start_recording() {
+    
+    recordingBuffer.clear();
+    isRecording = true;
+}
+void Audio::stop_recording() {
+    
+    isRecording = false;
+}
+void Audio::start_replaying() {
+    
+    isReplaying = true;
+    recordingBufferIdx = 0;
+}
+void Audio::stop_replaying() {
+    
+    isReplaying = false;
+}
+
+/*
  * Adds a single sample to the current audio buffer.
  * Also flushes the audio buffer to SDL when it is full.
  */
@@ -67,7 +91,13 @@ bool Audio::new_sample(uint16_t sample) {
     bool played;
     
     if (bufferIdx < bufferSize) {
-        buffer[bufferIdx] = sample;
+        
+        if (isReplaying) {
+            buffer[bufferIdx] = (Uint16) (0.5 * sample 
+                    + 0.5 * recordingBuffer[recordingBufferIdx]);
+        } else {
+            buffer[bufferIdx] = (Uint16) (0.5 * sample);
+        }
         
         if (cfg->b(LOG_DATA)) {
             std::cout << " " << (int) buffer[bufferIdx] << std::endl;
@@ -78,6 +108,16 @@ bool Audio::new_sample(uint16_t sample) {
     
     if (bufferIdx == bufferSize) {
         played = flush_buffer_to_sdl();
+    }
+    
+    if (played) {
+        if (isRecording) {
+            recordingBuffer.push_back(sample);
+        }
+        if (isReplaying) {
+            recordingBufferIdx = (recordingBufferIdx + 1) 
+                        % recordingBuffer.size();
+        }
     }
     
     return played;
@@ -137,9 +177,14 @@ void Audio::set_exiting(bool isExiting) {
 }
 
 /*
- * Returns true if the program is playing
- * audio at the moment.
+ * Trivial getters for the corresponding boolean fields.
  */
 bool Audio::is_playing() {
     return isPlaying;
+}
+bool Audio::is_recording() {
+    return isRecording;
+}
+bool Audio::is_replaying() {
+    return isReplaying;
 }

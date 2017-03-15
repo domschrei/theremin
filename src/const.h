@@ -45,7 +45,7 @@
 #define ACTION_AUTOTUNE_SMOOTH "action_autotune_smooth"
 #define ACTION_AUTOTUNE_FULL "action_autotune_full"
 #define ACTION_TREMOLO "action_tremolo"
-
+#define ACTION_RECORDING_REPLAYING "action_recording_replaying"
 
 /* CONFIGURATION VALUES */
 
