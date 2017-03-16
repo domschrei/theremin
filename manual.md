@@ -96,18 +96,30 @@ The USB foot switch should be plug-and-play; for correct input mapping, see the 
 
 As previously mentioned, the Raspberry Pi (3) can be used to run the application, which allows a tidy and self-contained system. For this purpose, I recommend to run the Raspberry without a display and to make the application automatically start on loading the desktop environment. (The Raspi needs to boot into the Desktop Environment nonetheless, because an X window is created to capture the inputs from the foot switches and other input devices.)
 
-To autostart the application, create a bash script inside `/etc/xdg/autostart` (the name can be chosen freely, e.g. `theresa.sh`) with the following contents:
+Inside the files `theresa.desktop` and `theresa.sh` in the `script/` folder, you will have to replace the path `/home/pi/theresa` accordingly if you cloned the repository from a differing directory.  
+To autostart the application at boot, copy the .desktop entry to `/etc/xdg/autostart`:
 
-    #!/bin/bash
-    cd /home/pi/theresa
-    LD_LIBRARY_PATH=tinkerforge/source/:/usr/local/lib/ ./theresa > ~/.theresa_log 2>&1
+   sudo cp script/theresa.desktop /etc/xdg/autostart/
 
-Replace `/home/pi/theresa` accordingly if you cloned the repository from a differing directory. Don't forget to make the script executable:
+The application should launch after a reboot. If it doesn't, debug the script by reading the log file `theresa_log` after a reboot.
 
-    chmod +x theresa.sh
+It probably is a good idea to configure the raspi such that you can control its volume easily without a graphical display. You can create shortcuts to make your keyboard's volume keys work: Inside the file `~/.config/openbox/lxde-pi-rc.xml`, look for the line with the content `</keyboard>` and add the following lines directly above:
 
-The application should launch after a reboot. If it doesn't, debug the script by reading the log file `~/.theresa_log` after a reboot.
-    
+    <keybind key="XF86AudioRaiseVolume">
+        <action name="Execute">
+	    <command>/home/pi/theresa/script/volumeup</command>
+        </action>
+    </keybind>
+    <keybind key="XF86AudioLowerVolume">
+        <action name="Execute">
+            <command>/home/pi/theresa/script/volumedown</command>
+        </action>
+    </keybind>
+
+Again, change the path of the application as needed.
+
+You can also use different shortcuts instead of the media keys XF86Audio*Volume; inside the .xml file, there are many examples on how to correctly express shortcuts with different modifiers.
+
 ## Using and tweaking
 
 To properly play the instrument, the sensors should be fastened and aligned. A 90 degree approach as shown in the blueprint works fine, with the frequency sensor pointing upwards and the volume sensor pointing to the side. Of course, the sensors can be built into a little box just like I have done (I could have taken a much smaller box if it wasn't for the long connection cables I bought).
