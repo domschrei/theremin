@@ -44,7 +44,7 @@ private:
             - std::log(freqA) * M_LOG2E; // logarithmic ratio between half-tones
     double minFreq;
     int maxVol;
-    int numOctaves;
+    double numOctaves;
     
     double mutedVolume = 0;
     bool octaveOffset = false;

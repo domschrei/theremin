@@ -30,7 +30,7 @@ void WaveSynth::init(Configuration* cfg) {
             break;
         }
     }
-    numOctaves = cfg->i(NUM_OCTAVES);
+    numOctaves = cfg->d(NUM_OCTAVES);
     maxVol = cfg->i(MAX_VOLUME);
     maxVolumeChangePerTick = cfg->d(MAX_VOLUME_CHANGE_PER_TICK);
     
