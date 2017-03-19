@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "user_interface.hpp"
+#include "music_util.hpp"
 
 /*
  * Initial input and video settings
@@ -108,6 +109,8 @@ void UserInterface::refresh_surface() {
         
     // Help text
     draw_help_text();
+    
+    draw_chords();
         
     // Publish rendered surface
     SDL_RenderPresent(renderer);
@@ -122,48 +125,37 @@ void UserInterface::draw_effect_labels() {
     
     /* Assemble strings describing the current effects */
     
-    std::string strSustainNote = "[";
-    strSustainNote += cfg->str(ACTION_SUSTAIN_NOTE);
-    strSustainNote += "] ";
+    std::string strSustainNote = "[" + cfg->str(ACTION_SUSTAIN_NOTE) + "] ";
     if (synth->is_secondary_frequency_active()) {
         strSustainNote += "Playing 2nd note";
     } else {
         strSustainNote += "Playing single note";
     }
     
-    std::string strOctaveUp = "[";
-    strOctaveUp += cfg->str(ACTION_OCTAVE_UP);
-    strOctaveUp += "] ";
+    std::string strOctaveUp = "[" + cfg->str(ACTION_OCTAVE_UP) + "] ";
     if (synth->is_octave_offset()) {
         strOctaveUp += "All notes octaved";
     } else {
         strOctaveUp += "All notes regular";
     }
     
-    std::string strTremolo = "[";
-    strTremolo += cfg->str(ACTION_TREMOLO);
-    strTremolo += "] ";
+    std::string strTremolo = "[" + cfg->str(ACTION_TREMOLO) + "] ";
     if (synth->is_tremolo_enabled()) {
         strTremolo += "Tremolo enabled";
     } else {
         strTremolo += "Tremolo disabled";
     }
     
-    std::string strWaveform = "[";
-    strWaveform += cfg->str(ACTION_CHANGE_WAVEFORM);
-    strWaveform += "] ";
+    std::string strWaveform = "[" + cfg->str(ACTION_CHANGE_WAVEFORM) + "] ";
     strWaveform += "Wave: " + synth->get_waveform();
     
-    std::string strAutotune = "[";
-    strAutotune += cfg->str(ACTION_AUTOTUNE_NONE) 
+    std::string strAutotune = "[" 
+            + cfg->str(ACTION_AUTOTUNE_NONE) 
             + "/" + cfg->str(ACTION_AUTOTUNE_SMOOTH) 
-            + "/" + cfg->str(ACTION_AUTOTUNE_FULL);
-    strAutotune += "] ";
+            + "/" + cfg->str(ACTION_AUTOTUNE_FULL) + "] ";
     strAutotune += std::string("Autotune: ") + synth->get_autotune_mode();
     
-    std::string strRecording = "[";
-    strRecording += cfg->str(ACTION_RECORDING_REPLAYING);
-    strRecording += "] ";
+    std::string strRecording = "[" + cfg->str(ACTION_RECORDING_REPLAYING) + "] ";
     if (audio->is_replaying()) {
         strRecording += "Replaying";
     } else if (audio->is_recording()) {
@@ -197,12 +189,12 @@ void UserInterface::draw_note_display() {
     SDL_Rect noteRect;
     noteRect.x = 190; noteRect.y = 70;
     noteRect.w = 70; noteRect.h = 70;
-    SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderFillRect(renderer, &noteRect);
     round_corners(noteRect);
     
     // Calculate the currently nearest note and the according color
-    int lowerNoteIdx = synth->get_nearest_lower_note_index();
+    int lowerNoteIdx = MusicUtil::get_nearest_lower_note_index(synth->frequency);
     int noteIdx = lowerNoteIdx;
     double lowerNoteFreqNorm = synth->get_normalized_frequency(NOTES[lowerNoteIdx]);
     float error = 0.0;
@@ -272,6 +264,37 @@ void UserInterface::draw_help_text() {
     draw_text(HELP_TEXT_4, 350, 340, textColor, sans);
 }
 
+void UserInterface::draw_chords() {
+    
+    int noteIdx = MusicUtil::get_nearest_note_index(synth->frequency);
+    std::string maj1 = "[" + cfg->str(ACTION_CHORD_MAJOR_1) + "] " 
+            + MusicUtil::get_chord_name(noteIdx, CHORD_MODE_1, CHORD_KEY_MAJOR);
+    std::string maj3 = "[" + cfg->str(ACTION_CHORD_MAJOR_3) + "] " 
+            + MusicUtil::get_chord_name(noteIdx, CHORD_MODE_3, CHORD_KEY_MAJOR);
+    std::string maj5 = "[" + cfg->str(ACTION_CHORD_MAJOR_5) + "] " 
+            + MusicUtil::get_chord_name(noteIdx, CHORD_MODE_5, CHORD_KEY_MAJOR);
+    std::string min1 = "[" + cfg->str(ACTION_CHORD_MINOR_1) + "] " 
+            + MusicUtil::get_chord_name(noteIdx, CHORD_MODE_1, CHORD_KEY_MINOR);
+    std::string min3 = "[" + cfg->str(ACTION_CHORD_MINOR_3) + "] " 
+            + MusicUtil::get_chord_name(noteIdx, CHORD_MODE_3, CHORD_KEY_MINOR);
+    std::string min5 = "[" + cfg->str(ACTION_CHORD_MINOR_5) + "] " 
+            + MusicUtil::get_chord_name(noteIdx, CHORD_MODE_5, CHORD_KEY_MINOR);
+    std::string clear = "[" + cfg->str(ACTION_CHORD_CLEAR) + "] Clear chords";
+    
+    draw_pedal(maj1.c_str(), 20, 30, 60, 30, false);
+    draw_pedal(maj3.c_str(), 20, 65, 60, 30, false);
+    draw_pedal(maj5.c_str(), 20, 100, 60, 30, false);
+    draw_pedal(min1.c_str(), 85, 30, 60, 30, false);
+    draw_pedal(min3.c_str(), 85, 65, 60, 30, false);
+    draw_pedal(min5.c_str(), 85, 100, 60, 30, false);
+    draw_pedal(clear.c_str(), 20, 135, 125, 30, false);
+    
+    SDL_Color textColor = {0, 0, 0, 255};
+    std::string currentChord = synth->get_current_chord_name();
+    currentChord = "Current chord: " + (currentChord != "" ? currentChord : "none");
+    draw_text(currentChord.c_str(), 20, 170, textColor, sans);
+}
+
 /*
  * Paints a single effect label ("pedal") with the given text 
  * at the given position.
@@ -280,8 +303,13 @@ void UserInterface::draw_help_text() {
  */
 void UserInterface::draw_pedal(const char* text, int x, int y, bool isPressed) {
     
+    draw_pedal(text, x, y, 220, 30, isPressed);
+}
+
+void UserInterface::draw_pedal(const char* text, int x, int y, int w, int h, bool isPressed) {
+    
     SDL_Rect rect;
-    rect.x = x; rect.y = y; rect.w = 220; rect.h = 30;
+    rect.x = x; rect.y = y; rect.w = w; rect.h = h;
     SDL_Color colorText;
     if (isPressed) {
         colorText = {255, 255, 255, 255};

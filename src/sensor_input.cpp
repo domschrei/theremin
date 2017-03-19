@@ -5,7 +5,7 @@
 #include "sensor_input.hpp"
 
 /*
- * Connects to the sensor brick at localhost:4223 and to the
+ * Connects to the sensor brick and to the
  * two expected distance sensors.
  */
 void SensorInput::setup_sensors(Configuration* cfg) {

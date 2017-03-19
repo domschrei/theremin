@@ -10,6 +10,7 @@ link_directories(${PROJECT_SOURCE_DIR}/tinkerforge/source/)
 add_executable(
 theresa
     src/configuration.cpp
+    src/music_util.cpp
     src/wave_synth.cpp 
     src/user_interface.cpp 
     src/audio.cpp 

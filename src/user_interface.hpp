@@ -50,8 +50,10 @@ private:
     void draw_note_display();
     void draw_status_bars();
     void draw_help_text();
+    void draw_chords();
     
     void draw_pedal(const char* text, int x, int y, bool isPressed);
+    void draw_pedal(const char* text, int x, int y, int w, int h, bool isPressed);
     void draw_progress(SDL_Rect rect, float share, bool inReadDirection);
     void draw_text(const char* text, int x, int y, SDL_Color color, TTF_Font* font);
     

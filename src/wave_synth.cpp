@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "wave_synth.hpp"
+#include "music_util.hpp"
 
 void WaveSynth::init(Configuration* cfg) {
     
@@ -52,9 +53,14 @@ void WaveSynth::init(Configuration* cfg) {
  */
 uint16_t WaveSynth::wave(double t) {
     
-    // Find correct position of primary wave
-    set_wave_offset(t, &waveSmoothing);
-    t += waveSmoothing.lastWaveAddOffset * waveSmoothing.wavePeriod;
+    // Initial time value to pass to children tones
+    double old_t = t;
+    
+    // Find correct position of primary wave (if enabled)
+    if (waveSmoothing.active) {
+        set_wave_offset(t, &waveSmoothing);
+        t += waveSmoothing.lastWaveAddOffset * waveSmoothing.wavePeriod;
+    }
     
     // Find correct position of secondary wave (if enabled)
     double t2 = 0.0;
@@ -66,62 +72,87 @@ uint16_t WaveSynth::wave(double t) {
     }
     
     // Apply tremolo effect (if enabled)
-    double volumeToUse;
-    if (tremolo) {
-        if (tremoloOffset == 0.0) {
-            tremoloOffset = t;
-        }
-        // Add a sine wave to the volume in order to modulate it
-        volumeToUse = volume + tremoloIntensity * volume 
-            * std::sin(t * 2 * M_PI / (sample_rate / tremoloFrequency)
-            - tremoloOffset * 2 * M_PI / (sample_rate / tremoloFrequency));
-        volumeToUse = std::min(volumeToUse, (double) maxVol);
-        volumeToUse = std::max(volumeToUse, 0.0);
-        
-        // If tremolo is to fade out, 
-        // check if now is an appropriate time to smoothly stop the effect
-        if (tremoloExiting && std::abs(volumeToUse - volume) <= maxVol / 1000.0) {
-            tremolo = false;
-        }
-    } else {
-        volumeToUse = volume;
-    }
+    double volumeToUse = (tremolo ? get_tremolo_volume(t) : volume);
     
-    auto function = sin;
+    // Find correct wave function
+    auto function = get_wave_function();
     
-    if (waveform == WAVE_SIN) {
-        function = sin;
-    } else if (waveform == WAVE_SQUARE) {
-        function = square;
-    } else if (waveform == WAVE_TRIANGLE) {
-        function = triangle;
-    } else if (waveform == WAVE_SAW) {
-        function = saw;
-    } else if (waveform == WAVE_SIN_ASSYM) {
-        function = sin_assym;
-    } else if (waveform == WAVE_SIN_INTERFERING) {
-        function = sin_interfering;
-    } else if (waveform == WAVE_PLATEAU) {
-        function = plateau;
-    } else if (waveform == WAVE_GAUSS) {
-        function = gauss;
-    } else if (waveform == WAVE_HALFCIRC) {
-        function = halfcirc;
-    } else if (waveform == WAVE_SINGLESLIT) {
-        function = singleslit;
-    } else {
-        std::cout << "Error: No valid wavetype specified." << std::endl;
-        exit(1);
-    }
-    
+    // Calculate basic value
     double value = function(t, period, volumeToUse);
     
+    // Calculate secondary value (if enabled) and adapt volume
     if (secondaryFrequency != 0.0) {
         double value2 = function(t2, period2, volumeToUse);
-        return (uint16_t) std::round((1 - secondaryVolumeShare) * value + secondaryVolumeShare * value2);
+        value = std::round((1 - secondaryVolumeShare) * value + secondaryVolumeShare * value2);
     } else {
-        return (uint16_t) std::round((1 - secondaryVolumeShare) * value);
+        value = std::round((1 - secondaryVolumeShare) * value);
     }
+    
+    // Adapt volume for chords 
+    // and call the additional tones' wave function to accumulate the sound
+    value /= 3;
+    double childVals1 = 0;
+    double childVals2 = 0;
+    if (children.size() > 0) {
+        for (int i = 0; i < children.size(); i++) {
+            childVals1 += children[i].wave(old_t);
+        }
+    }
+    if (fading && nextChildren.size() > 0) {
+        for (int i = 0; i < nextChildren.size(); i++) {
+            childVals2 += nextChildren[i].wave(old_t);
+        }
+    }
+    value += fadingOutFactor * childVals1 + fadingInFactor * childVals2;
+    
+    return (uint16_t) value;
+}
+
+void WaveSynth::add_child_note(int rel_halftones) {
+    
+    int noteIdx = MusicUtil::get_nearest_note_index(frequency);
+    double note = NOTES[noteIdx] * std::pow(root12Of2, rel_halftones);
+    
+    WaveSynth child_synth;
+    child_synth.init(cfg);
+    child_synth.frequency = note;
+    child_synth.period = sample_rate / child_synth.frequency;
+    child_synth.waveSmoothing.active = false;
+    child_synth.update_volume(volumeTarget);
+    child_synth.set_secondary_frequency(0.0);
+    child_synth.waveformIdx = waveformIdx;
+    child_synth.waveform = waveform;
+    nextChildren.push_back(child_synth);
+}
+
+void WaveSynth::set_chord_notes(int chordMode, int chordKey) {
+   
+    nextChildren.clear();
+    
+    std::vector<int> intervals = MusicUtil::get_chord_intervals(chordMode, chordKey);
+    for (int i = 0; i < intervals.size(); i++) {
+        add_child_note(intervals[i]);
+    }
+    
+    fadingOutFactor = 1;
+    fadingInFactor = 0;
+    fading = true;
+    
+    int chordNoteIdx = MusicUtil::get_nearest_note_index(frequency);
+    currentChordName = MusicUtil::get_chord_name(
+                chordNoteIdx, chordMode, chordKey);
+}
+
+void WaveSynth::clear_child_notes() {
+    nextChildren.clear();
+    fadingOutFactor = 1;
+    fadingInFactor = 0;
+    fading = true;
+    currentChordName = "";
+}
+
+bool WaveSynth::has_child_notes() {
+    return children.size() > 0;
 }
 
 /*
@@ -157,13 +188,7 @@ bool WaveSynth::is_secondary_frequency_active() {
  */
 void WaveSynth::set_octave_offset(bool offset) {
     
-    if (offset) {
-        octaveOffset = true;
-        //frequency *= 2;
-    } else {
-        octaveOffset = false;
-        //frequency /= 2;
-    }
+    octaveOffset = offset;
     update_frequency(-1);
 }
 
@@ -203,38 +228,28 @@ void WaveSynth::switch_waveform() {
  */
 void WaveSynth::align_frequency() {
     
-    if (frequency <= 0 || autotuneMode == AUTOTUNE_NONE)
+    if (frequency <= 0 || autotuneMode == AUTOTUNE_NONE) {
         return;
+    }
     
-    double freqInLog = std::log(frequency) * M_LOG2E;
-    if (freqInLog <= 0)
-        return;
     double freqNew;
-    double toneQualitySine = std::sin(
-                (freqInLog - std::log(freqA) * M_LOG2E) 
-                * 2 * M_PI / ratioInLog
-            );
     
     if (autotuneMode == AUTOTUNE_SMOOTH) {
             
+        double freqInLog = std::log(frequency) * M_LOG2E;
+        if (freqInLog <= 0) {
+            return;
+        }
+        double toneQualitySine = std::sin(
+                    (freqInLog - std::log(freqA) * M_LOG2E) 
+                    * 2 * M_PI / ratioInLog
+                );
         freqNew = frequency - (1 / (ratioInLog * (2 * M_PI))) 
             * toneQualitySine;
             
-    } else if (autotuneMode == AUTOTUNE_FULL) {
+    } else /*if (autotuneMode == AUTOTUNE_FULL)*/ {
         
-        double lowerFreq = NOTES[get_nearest_lower_note_index()];
-        double lowerFreqNorm = get_normalized_frequency(lowerFreq);
-        double upperFreq = lowerFreq * root12Of2;
-        double upperFreqNorm = get_normalized_frequency(upperFreq);
-        double currentFreqNorm = get_normalized_frequency(frequency);
-        
-        if (upperFreqNorm - currentFreqNorm > currentFreqNorm - lowerFreqNorm) {
-            // pitch to lower note
-            freqNew = lowerFreq;
-        } else {
-            // pitch to upper note
-            freqNew = upperFreq;
-        }
+        freqNew = NOTES[MusicUtil::get_nearest_note_index(frequency)];
     }
     
     frequency = freqNew;
@@ -278,13 +293,24 @@ void WaveSynth::update_frequency(float value) {
  */
 void WaveSynth::update_volume(float value) {
     volumeTarget = maxVol * value;
+    
+    // Also update volume for child tones
+    for (int i = 0; i < children.size(); i++) {
+        children[i].update_volume(value);
+    }
+    for (int i = 0; i < nextChildren.size(); i++) {
+        nextChildren[i].update_volume(value);
+    }
 }
 
 /*
  * Lets the volume approach the current target volume
  * by a maximal difference of MAX_VOLUME_CHANGE_PER_TICK.
+ * Also advances and finalizes crossfading of chords, if currently active.
  */
 void WaveSynth::volume_tick() {
+    
+    // Adjust volume
     double volumeDiff;
     if (volumeTarget - volume > 0) {
         volumeDiff = std::min(maxVolumeChangePerTick, volumeTarget - volume);
@@ -292,6 +318,28 @@ void WaveSynth::volume_tick() {
         volumeDiff = std::max(-maxVolumeChangePerTick, volumeTarget - volume);
     }
     volume += volumeDiff;
+    
+    // Adjust volume of children tones
+    for (int i = 0; i < children.size(); i++) {
+        children[i].volume_tick();
+    }
+    for (int i = 0; i < nextChildren.size(); i++) {
+        nextChildren[i].volume_tick();
+    }
+    
+    // Cross-fade between current and incoming child tones
+    if (fading) {
+        fadingOutFactor -= 0.02;
+        fadingInFactor += 0.02;
+        
+        if (fadingOutFactor <= 0 && fadingInFactor >= 1) {
+            children = nextChildren;
+            nextChildren.clear();
+            fadingOutFactor = 1;
+            fadingInFactor = 1;
+            fading = false;
+        }
+    }
 }
 
 /*
@@ -300,6 +348,9 @@ void WaveSynth::volume_tick() {
  * wave which was active before.
  */
 void WaveSynth::set_wave_offset(double t, WaveSmoothing* smoothing) {
+    
+    if (!smoothing->active) 
+        return;
     
     double period = smoothing->wavePeriod;
     double currentBasicOffset = fmod(t, period) / period;
@@ -323,13 +374,6 @@ double WaveSynth::get_max_frequency() {
     return minFreq * std::pow(2, numOctaves + 1);
 }
 
-double WaveSynth::get_normalized_frequency(double f) {
-    if (f <= 0)
-        return 0.0;
-    else 
-        return (1.0 / (numOctaves + 1)) * std::log2(f / minFreq);
-}
-
 bool WaveSynth::is_octave_offset() {
     return octaveOffset;
 }
@@ -346,33 +390,89 @@ std::string WaveSynth::get_autotune_mode() {
     return autotuneMode;
 }
 
+std::string WaveSynth::get_current_chord_name() {
+    return currentChordName;
+}
+
 /*
- * Does a binary search to find the note (as defined in config.h)
- * which is lower or equals the current frequency, and which has 
- * the smallest distance frequency-wise.
- * Returns the index of this note (a valid index for NOTES and for
- * NOTE_NAMES).
+ * Maps a frequency inside the minimum and maximum frequency bounds
+ * to a linear value in [0,1], such that two pairs of tones with the same
+ * interval will have the same absolute distance on this scale.
+ * (Stateless function)
  */
-int WaveSynth::get_nearest_lower_note_index() {
+double WaveSynth::get_normalized_frequency(double f) {
+    if (f <= 0) {
+        return 0.0;
+    } else {
+        return (1.0 / (numOctaves + 1)) * std::log2(f / minFreq);
+    }
+}
+
+/*
+ * Determines the volume that should be used for the current tick 
+ * if the tremolo effect is enabled. The actual volume is being modulated
+ * by adding a sine wave. Also finalizes the effect if it is to fade out.
+ */
+double WaveSynth::get_tremolo_volume(double t) {
     
-    int lower = 0;
-    int upper = sizeof(NOTE_NAMES)/sizeof(*NOTE_NAMES) - 1;
+    double volumeToUse;
     
-    while (upper - lower > 1) {
-        
-        int mid = 0.5 * (lower + upper);
-        
-        if (frequency > NOTES[mid]) {
-            lower = std::max(mid, lower+1);
-        } else if (frequency < NOTES[mid]) {
-            upper = std::min(mid, upper-1);
-        } else {
-            lower = mid; upper = mid;
-        }
+    if (tremoloOffset == 0.0) {
+        tremoloOffset = t;
+    }
+    // Add a sine wave to the volume in order to modulate it
+    volumeToUse = volume + tremoloIntensity * volume 
+        * std::sin(t * 2 * M_PI / (sample_rate / tremoloFrequency)
+        - tremoloOffset * 2 * M_PI / (sample_rate / tremoloFrequency));
+    volumeToUse = std::min(volumeToUse, (double) maxVol);
+    volumeToUse = std::max(volumeToUse, 0.0);
+    
+    // If tremolo is to fade out, 
+    // check if now is an appropriate time to smoothly stop the effect
+    if (tremoloExiting && std::abs(volumeToUse - volume) <= maxVol / 1000.0) {
+        tremolo = false;
     }
     
-    return lower;
+    return volumeToUse;
 }
+
+/*
+ * Returns the wave function which should be used according to the object's
+ * waveform attribute. Exits the program with an error message if no waveform
+ * is specified.
+ */
+wavefunc WaveSynth::get_wave_function() {
+    
+    auto function = sin;
+    
+    if (waveform == WAVE_SIN) {
+        function = sin;
+    } else if (waveform == WAVE_SQUARE) {
+        function = square;
+    } else if (waveform == WAVE_TRIANGLE) {
+        function = triangle;
+    } else if (waveform == WAVE_SAW) {
+        function = saw;
+    } else if (waveform == WAVE_SIN_ASSYM) {
+        function = sin_assym;
+    } else if (waveform == WAVE_SIN_INTERFERING) {
+        function = sin_interfering;
+    } else if (waveform == WAVE_PLATEAU) {
+        function = plateau;
+    } else if (waveform == WAVE_GAUSS) {
+        function = gauss;
+    } else if (waveform == WAVE_HALFCIRC) {
+        function = halfcirc;
+    } else if (waveform == WAVE_SINGLESLIT) {
+        function = singleslit;
+    } else {
+        std::cout << "Error: No valid wavetype specified." << std::endl;
+        exit(1);
+    }
+    
+    return function;
+}
+
 
 /*
  * STATIC, STATELESS WAVE FUNCTIONS
@@ -403,8 +503,8 @@ double WaveSynth::sin_assym_normalized(double t) {
 
 double WaveSynth::sin_interfering(double t, double period, double volume) {
  
-    return volume * (0.5 + 0.5 * std::sin((t     ) * 2*M_PI / period)) 
-                  * (0.5 + 0.5 * std::sin((4 * t ) * 2*M_PI / period));
+    return volume * (0.5 + 0.5 * std::sin((t    ) * 2*M_PI / period)) 
+                  * (0.5 + 0.5 * std::sin((4 * t) * 2*M_PI / period));
 }
 
 double WaveSynth::square(double t, double period, double volume) {

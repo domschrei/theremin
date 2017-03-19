@@ -46,6 +46,13 @@
 #define ACTION_AUTOTUNE_FULL "action_autotune_full"
 #define ACTION_TREMOLO "action_tremolo"
 #define ACTION_RECORDING_REPLAYING "action_recording_replaying"
+#define ACTION_CHORD_MAJOR_1 "action_chord_major_1"
+#define ACTION_CHORD_MAJOR_3 "action_chord_major_3"
+#define ACTION_CHORD_MAJOR_5 "action_chord_major_5"
+#define ACTION_CHORD_MINOR_1 "action_chord_minor_1"
+#define ACTION_CHORD_MINOR_3 "action_chord_minor_3"
+#define ACTION_CHORD_MINOR_5 "action_chord_minor_5"
+#define ACTION_CHORD_CLEAR "action_chord_clear"
 
 /* CONFIGURATION VALUES */
 
@@ -160,5 +167,11 @@ static const char* NOTE_NAMES[] = {"c0","c#0","d0","d#0","e0","f0","f#0","g0","g
 #define AUTOTUNE_NONE "none"
 #define AUTOTUNE_SMOOTH "smooth"
 #define AUTOTUNE_FULL "full"
+
+#define CHORD_MODE_1 1
+#define CHORD_MODE_3 3
+#define CHORD_MODE_5 5
+#define CHORD_KEY_MAJOR 1
+#define CHORD_KEY_MINOR 2
 
 #endif

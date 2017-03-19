@@ -3,9 +3,12 @@
 
 #include <cmath>
 #include <string>
+#include <vector>
 
 #include "const.h"
 #include "configuration.hpp"
+
+typedef double (*wavefunc)(double, double, double);
 
 class WaveSynth {
 
@@ -19,8 +22,9 @@ public:
     double period;
     
     struct WaveSmoothing {
+        bool active = true;
         // Properties to ensure continuity (and, to a certain degree, 
-        // smoothness of waves), despite frequency and volume changes
+        // smoothness) of waves despite frequency and volume changes
         bool waveSwitch;
         double lastWaveAddOffset;
         double lastWaveTotalOffset;
@@ -57,11 +61,18 @@ private:
     double tremoloOffset = 0.0;
     
     double secondaryFrequency;
-    double secondaryVolumeShare = 0.4;
+    double secondaryVolumeShare = 0.1;
     
     std::string autotuneMode;
     
     double volumeTarget = volume;
+    
+    std::vector<WaveSynth> children;
+    std::vector<WaveSynth> nextChildren;
+    double fadingOutFactor = 0;
+    double fadingInFactor = 1;
+    bool fading;
+    std::string currentChordName = "";
     
 // methods
     
@@ -69,6 +80,11 @@ public:
     void init(Configuration* cfg);
     
     uint16_t wave(double t);
+    
+    void add_child_note(int rel_halftones);
+    void set_chord_notes(int chordMode, int chordKey);
+    void clear_child_notes();
+    bool has_child_notes();
     
     void align_frequency();
     void update_frequency(float value);
@@ -82,16 +98,20 @@ public:
     void set_autotune_mode(std::string mode);
     
     double get_max_frequency();
-    double get_normalized_frequency(double f);
-    int get_nearest_lower_note_index();
     bool is_octave_offset();
     bool is_tremolo_enabled();
     std::string get_waveform();
     std::string get_autotune_mode();
+    std::string get_current_chord_name();
+    
     void volume_tick();
+    
+    double get_normalized_frequency(double f);
 
 private:
     void set_wave_offset(double t, WaveSmoothing* smoothing);
+    double get_tremolo_volume(double t);
+    wavefunc get_wave_function();
     
     static double sin(double t, double period, double volume);
     static double sin_assym(double t, double period, double volume);

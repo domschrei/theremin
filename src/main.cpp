@@ -89,6 +89,21 @@ void process_input(std::vector<std::string> actions) {
                         " reached." << std::endl;
                 exit(1);
             }
+            
+        } else if (action == cfg->str(ACTION_CHORD_MAJOR_1)) {
+            synth.set_chord_notes(CHORD_MODE_1, CHORD_KEY_MAJOR);
+        } else if (action == cfg->str(ACTION_CHORD_MAJOR_3)) {
+            synth.set_chord_notes(CHORD_MODE_3, CHORD_KEY_MAJOR);
+        } else if (action == cfg->str(ACTION_CHORD_MAJOR_5)) {
+            synth.set_chord_notes(CHORD_MODE_5, CHORD_KEY_MAJOR);
+        } else if (action == cfg->str(ACTION_CHORD_MINOR_1)) {
+            synth.set_chord_notes(CHORD_MODE_1, CHORD_KEY_MINOR);
+        } else if (action == cfg->str(ACTION_CHORD_MINOR_3)) {
+            synth.set_chord_notes(CHORD_MODE_3, CHORD_KEY_MINOR);
+        } else if (action == cfg->str(ACTION_CHORD_MINOR_5)) {
+            synth.set_chord_notes(CHORD_MODE_5, CHORD_KEY_MINOR);
+        } else if (action == cfg->str(ACTION_CHORD_CLEAR)) {
+            synth.clear_child_notes();
         }
     }
 }
