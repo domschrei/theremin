@@ -29,7 +29,7 @@ void Audio::setup_audio(Configuration* cfg) {
 
     /* Set the audio format */
     wanted.freq = cfg->i(SAMPLE_RATE);
-    wanted.format = AUDIO_U16;
+    wanted.format = AUDIO_S16;
     wanted.channels = 1;    /* 1 = mono, 2 = stereo */
     wanted.samples = bufferSize;
     wanted.callback = NULL;

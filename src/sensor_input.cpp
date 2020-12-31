@@ -16,8 +16,8 @@ void SensorInput::setup_sensors(Configuration* cfg) {
     ipcon_create(&ipcon);
 
     // Create device object
-    distance_us_create(&distanceFrequency, cfg->str(UID_FREQUENCY).c_str(), &ipcon);
-    distance_us_create(&distanceVolume, cfg->str(UID_VOLUME).c_str(), &ipcon);
+    distance_ir_v2_create(&distanceFrequency, cfg->str(UID_FREQUENCY).c_str(), &ipcon);
+    distance_ir_v2_create(&distanceVolume, cfg->str(UID_VOLUME).c_str(), &ipcon);
 
     // Connect to brickd
     if(ipcon_connect(&ipcon, cfg->str(HOST).c_str(), cfg->i(PORT)) < 0) {
@@ -29,8 +29,8 @@ void SensorInput::setup_sensors(Configuration* cfg) {
     }
 
     // Turn off moving average (because it causes higher latency)
-    distance_us_set_moving_average(&distanceFrequency, 0);
-    distance_us_set_moving_average(&distanceVolume, 0);
+    distance_ir_v2_set_moving_average_configuration(&distanceFrequency, 1);
+    distance_ir_v2_set_moving_average_configuration(&distanceVolume, 1);
 }
 
 /*
@@ -43,7 +43,7 @@ bool SensorInput::frequency_value(double* value) {
     
     // Poll value from sensor
     uint16_t rawValue = 0;
-    distance_us_get_distance_value(&distanceFrequency, &rawValue);
+    distance_ir_v2_get_distance(&distanceFrequency, &rawValue);
     
     if (rawValue <= cfg->i(SENSOR_FREQ_MAX_VALUE)) {
         // normalize the value to [0,1]
@@ -66,7 +66,7 @@ bool SensorInput::volume_value(double* value) {
     
     // Poll value from sensor
     uint16_t rawValue = 0;
-    distance_us_get_distance_value(&distanceVolume, &rawValue);
+    distance_ir_v2_get_distance(&distanceVolume, &rawValue);
     
     // cap values at the threshold
     if (rawValue >= cfg->i(SENSOR_VOL_MAX_VALUE)) {
@@ -84,7 +84,7 @@ bool SensorInput::volume_value(double* value) {
  */
 void SensorInput::finish() {
     
-    distance_us_destroy(&distanceFrequency);
-    distance_us_destroy(&distanceVolume);
+    distance_ir_v2_destroy(&distanceFrequency);
+    distance_ir_v2_destroy(&distanceVolume);
     ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 }

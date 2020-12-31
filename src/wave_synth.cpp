@@ -6,6 +6,8 @@
 #include "wave_synth.hpp"
 #include "music_util.hpp"
 
+static WaveSynth::WaveLookupTable complexWaveLookup;
+
 void WaveSynth::init(Configuration* cfg) {
     
     this->cfg = cfg;
@@ -45,6 +47,63 @@ void WaveSynth::init(Configuration* cfg) {
     tremolo = cfg->b(TREMOLO_ENABLED);
     tremoloFrequency = cfg->d(TREMOLO_FREQUENCY);
     tremoloIntensity = cfg->d(TREMOLO_INTENSITY);
+    
+    std::vector<double> frequency_ratios;
+    std::vector<double> shares;
+    
+    frequency_ratios.push_back(1.0);
+    frequency_ratios.push_back(2.0);
+    frequency_ratios.push_back(3.0);
+    frequency_ratios.push_back(4.0);
+    frequency_ratios.push_back(5.0);
+    frequency_ratios.push_back(6.0);
+    frequency_ratios.push_back(7.0);
+    frequency_ratios.push_back(8.0);
+    frequency_ratios.push_back(9.0);
+    frequency_ratios.push_back(10.0);
+    frequency_ratios.push_back(11.0);
+    frequency_ratios.push_back(12.0);
+    frequency_ratios.push_back(13.0);
+    frequency_ratios.push_back(14.0);
+    frequency_ratios.push_back(15.0);
+    frequency_ratios.push_back(16.0);
+    frequency_ratios.push_back(17.0);
+    frequency_ratios.push_back(18.0);
+    frequency_ratios.push_back(19.0);
+    frequency_ratios.push_back(20.0);
+    
+    shares.push_back(1);
+    shares.push_back(9);
+    shares.push_back(4);
+    shares.push_back(2);
+    shares.push_back(0.5);
+    shares.push_back(0.1);
+    shares.push_back(0.2);
+    shares.push_back(0.1);
+    shares.push_back(0.05);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    shares.push_back(0.01);
+    
+    // Normalize shares so that they sum up to 1
+    double sumShares = 0.0;
+    for (int i = 0; i < shares.size(); i++) {
+        sumShares += shares[i];
+    }
+    for (int i = 0; i < shares.size(); i++) {
+        shares[i] /= sumShares;
+    }
+    
+    complexWaveLookup.frequency_ratios = frequency_ratios;
+    complexWaveLookup.shares = shares;
 }
 
 /*
@@ -465,6 +524,8 @@ wavefunc WaveSynth::get_wave_function() {
         function = halfcirc;
     } else if (waveform == WAVE_SINGLESLIT) {
         function = singleslit;
+    } else if (waveform == WAVE_COMPLEX) {
+        function = complex;
     } else {
         std::cout << "Error: No valid wavetype specified." << std::endl;
         exit(1);
@@ -566,6 +627,17 @@ double WaveSynth::singleslit(double t, double period, double volume) {
     
     double interval = 20;
     double x = interval * fmod(t, period) / period - (interval / 2);
-    double value = std::sin(x) * std::sin(x) / (x * x);
+    double sin = std::sin(x);
+    double value = sin * sin / (x * x);
     return (volume * value);
+}
+
+double WaveSynth::complex(double t, double period, double volume) {
+        
+    double sum = 0;
+    int numWaves = std::min(complexWaveLookup.frequency_ratios.size(), complexWaveLookup.shares.size());
+    for (int i = 0; i < numWaves; i++) {
+        sum += WaveSynth::sin(t, period / complexWaveLookup.frequency_ratios[i], volume * complexWaveLookup.shares[i]);
+    }
+    return sum;
 }

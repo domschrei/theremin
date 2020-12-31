@@ -30,7 +30,12 @@ public:
         double lastWaveTotalOffset;
         double wavePeriod;
     };
-
+    
+    struct WaveLookupTable {
+        std::vector<double> frequency_ratios;
+        std::vector<double> shares;
+    };
+    
 private:
     Configuration* cfg;
     
@@ -124,6 +129,8 @@ private:
     static double gauss(double t, double period, double volume);
     static double halfcirc(double t, double period, double volume);
     static double singleslit(double t, double period, double volume);
+    static double complex(double t, double period, double volume);
+
 };
 
 #endif

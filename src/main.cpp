@@ -113,7 +113,7 @@ void process_input(std::vector<std::string> actions) {
  * and refreshes the graphical display.
  */
 void main_loop(int *t) {
-    
+        
     /*
      * Process primary input to adjust volume and frequency
      */
@@ -176,12 +176,21 @@ void main_loop(int *t) {
         audio.start_playing();
     }
     
+#ifdef THEREMIN_GUI
     /*
      * Refresh the drawn surface at some times, if enabled
      */
     if (cfg->b(REALTIME_DISPLAY) && (*t % periodDisplayRefresh == 0)) {
         userInterface.refresh_surface();
     }
+#else
+    /* 
+     * Refresh terminal output
+     */
+    if (*t % periodDisplayRefresh == 0) {
+        userInterface.refresh_surface();
+    }
+#endif
     
     /*
      * Don't cause an integer overflow (might happen if the application
@@ -194,10 +203,23 @@ void main_loop(int *t) {
 
 int main(int argc, const char* argv[]) 
 {
+    
     // Load configuration
     cfg = new Configuration();
     cfg->load();
     
+    // Disallow launching Theresa with CLI and mouse as input method
+#ifndef THEREMIN_GUI
+    if (cfg->str(INPUT_DEVICE) == INPUT_DEVICE_MOUSE) {
+        std::cout << 
+"This is the CLI application of Theresa, which does not support \
+the mouse as an input method. Please change the input device \
+in your configuration to \"sensor\" and properly set up the \
+Tinkerforge distance sensors." << std::endl;
+        exit(0);
+    }
+#endif
+        
     // Calculate periods for various tasks
     int sampleRate = cfg->i(SAMPLE_RATE);
     periodInputMouse = sampleRate / cfg->i(TASK_FREQUENCY_INPUT_MOUSE);
@@ -222,6 +244,8 @@ int main(int argc, const char* argv[])
     
     // Program exit callback
     atexit(finish);
+    
+    std::cout << "Setup completed, beginning main loop." << std::endl;
     
     // Run main loop until closed
     for (int t = 1; ; t++) {

@@ -3,7 +3,7 @@
 set -e
 
 URL_PATH='http://download.tinkerforge.com/bindings/c/'
-FILE_NAME='tinkerforge_c_bindings_2_1_12.zip'
+FILE_NAME='tinkerforge_c_bindings_latest.zip'
 
 wget "$URL_PATH""$FILE_NAME"
 mkdir -p tinkerforge

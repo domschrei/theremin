@@ -1,7 +1,6 @@
 #ifndef THEREMIN_CONST_H
 #define THEREMIN_CONST_H
 
-
 /* CONFIGURATION KEYS */
 
 #define INPUT_DEVICE "input_device"
@@ -71,6 +70,7 @@
 #define WAVE_GAUSS "gauss"
 #define WAVE_SAW "saw"
 #define WAVE_SQUARE "square"
+#define WAVE_COMPLEX "complex"
 
 static const char* WAVE_NAMES[] = {
     WAVE_SIN,
@@ -82,7 +82,8 @@ static const char* WAVE_NAMES[] = {
     WAVE_HALFCIRC,
     WAVE_GAUSS,
     WAVE_SAW,
-    WAVE_SQUARE
+    WAVE_SQUARE,
+    WAVE_COMPLEX
 };
 
 // note frequencies

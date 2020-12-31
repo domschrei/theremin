@@ -107,3 +107,19 @@ int MusicUtil::get_nearest_note_index(double frequency) {
     
     return noteIdx;
 }
+
+MusicUtil::frequency_correction MusicUtil::get_error_of_frequency(double norm_freq, double lower_norm_freq, double upper_norm_freq) {
+    
+    frequency_correction correction;
+    double freqDiffNorm = upper_norm_freq - lower_norm_freq;
+    float diffUpper = upper_norm_freq - norm_freq;
+    float diffLower = norm_freq - lower_norm_freq;
+    if (diffLower <= diffUpper) {
+        correction.lower_note_nearer = true;
+        correction.rel_error = diffLower / (0.5 * freqDiffNorm);
+    } else {
+        correction.lower_note_nearer = false;
+        correction.rel_error = diffUpper / (0.5 * freqDiffNorm);
+    }
+    return correction;
+}

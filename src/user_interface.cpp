@@ -1,7 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iomanip> // setprecision
+#include <sstream> // stringstream
 
+#include "const.h"
 #include "user_interface.hpp"
 #include "music_util.hpp"
 
@@ -14,7 +17,8 @@ void UserInterface::setup(Configuration* cfg, WaveSynth* synth, Audio* audio) {
     this->synth = synth;
     this->audio = audio;
     
-    // Initialize SDL video mode
+#ifdef THEREMIN_GUI
+    // Initialize SDL video AND audio mode
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         fprintf(stderr, "Could not initialise SDL: %s\n", SDL_GetError());
         exit(-1);
@@ -48,6 +52,23 @@ void UserInterface::setup(Configuration* cfg, WaveSynth* synth, Audio* audio) {
         draw_text("Realtime display disabled.", 20, 60, black, sans);
         SDL_RenderPresent(renderer);
     }
+#else
+    // Only initialize SDL audio mode
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        fprintf(stderr, "Could not initialise SDL: %s\n", SDL_GetError());
+        exit(-1);
+    }
+    
+    // Initialize curses
+    initscr();
+    cbreak(); // one character at a time
+    noecho(); // do not echo typed stuff
+    nodelay(stdscr, TRUE); // non-blocking keypress polling
+    keypad(stdscr, TRUE); // also capture non-character keypresses
+    start_color(); // enable basic colors
+    scrollok(stdscr,FALSE);
+    curs_set(0); // make cursor invisible
+#endif
 }
 
 /*
@@ -58,6 +79,8 @@ void UserInterface::setup(Configuration* cfg, WaveSynth* synth, Audio* audio) {
 std::vector<std::string> UserInterface::poll_events() {
     
     std::vector<std::string> actions;
+    
+#ifdef THEREMIN_GUI
     SDL_Event event;
     
     while (SDL_PollEvent(&event)) {
@@ -74,6 +97,12 @@ std::vector<std::string> UserInterface::poll_events() {
             exit(0);
         }
     }
+#else
+    int ch;
+    while ((ch = getch()) != ERR) {
+        actions.push_back(std::string(1, ch));
+    }
+#endif
     
     return actions;
 }
@@ -93,6 +122,9 @@ void UserInterface::last_cursor_position(float *x, float *y) {
  * of the WaveSynth instance which this class has access to.
  */
 void UserInterface::refresh_surface() {
+
+#ifdef THEREMIN_GUI
+    // Graphical window
     
     // White background
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -114,8 +146,43 @@ void UserInterface::refresh_surface() {
         
     // Publish rendered surface
     SDL_RenderPresent(renderer);
+    
+#else
+    // Terminal interface
+    
+    // Initialize
+    clear();
+    attroff(A_STANDOUT);
+    
+    // Check if terminal has necessary minimum size
+    int width = 56; int height = 16;
+    if (getmaxx(stdscr) < width || getmaxy(stdscr) < height) {
+        printw("Terminal too small! (minimum %ix%i)", width, height);
+        return;
+    }
+    
+    // Box around contents with title
+    print_box(width, height);
+        
+    // First column
+    move(2, 2);
+    
+    print_current_volume();
+    print_current_note();
+    print_current_chords(); 
+    print_help_text();
+        
+    // Second column
+    move(2, 30);
+    
+    print_buttons();
+    
+    refresh();
+    
+#endif
 }
 
+#ifdef THEREMIN_GUI
 /*
  * Draws a label ("pedal") for each possible effect.
  * The label will appeared "pressed" if a corresponding
@@ -401,11 +468,170 @@ void UserInterface::round_corners(SDL_Rect rect) {
     SDL_RenderDrawPoint(renderer, rect.x + rect.w - 1, rect.y + rect.h - 1);
 }
 
+#else
+
+void UserInterface::print_box(int width, int height) {
+    
+    // Box
+    move(0, 0);
+    addch(ACS_ULCORNER);
+    move(0, width);
+    addch(ACS_URCORNER);
+    move(height, 0);
+    addch(ACS_LLCORNER);
+    move(height, width);
+    addch(ACS_LRCORNER);
+    move(0, 1);
+    hline(ACS_HLINE, width-1);
+    move(height, 1);
+    hline(ACS_HLINE, width-1);
+    move(1, 0);
+    vline(ACS_VLINE, height-1);
+    move(1, width);
+    vline(ACS_VLINE, height-1);
+    
+    // Title
+    move(0, 2);
+    print_and_wrap("THERESA - THEREmin-like Sensor Application");
+}
+
+void UserInterface::print_current_note() {
+    
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(3, COLOR_RED, COLOR_BLACK);
+        
+    // Calculate note and its correction
+    int lower_note_idx = MusicUtil::get_nearest_lower_note_index(synth->frequency);
+    MusicUtil::frequency_correction correction = MusicUtil::get_error_of_frequency(
+        synth->get_normalized_frequency(synth->frequency), 
+        synth->get_normalized_frequency(NOTES[lower_note_idx]), 
+        synth->get_normalized_frequency(NOTES[lower_note_idx+1]));
+    float error = correction.rel_error;
+    int note_idx;
+    if (correction.lower_note_nearer) note_idx = lower_note_idx;
+    else note_idx = lower_note_idx + 1;
+    
+    // Played note
+    print_and_wrap("CURRENT NOTE");
+    int curx = getcurx(stdscr);
+    printw("[[ ");
+    if (error > 0.3) attron(COLOR_PAIR(3));
+    else if (error > 0.15) attron(COLOR_PAIR(2));
+    else attron(COLOR_PAIR(1));
+    printw(NOTE_NAMES[note_idx]);
+    attroff(COLOR_PAIR(1)); attroff(COLOR_PAIR(2)); attroff(COLOR_PAIR(3));
+    move(getcury(stdscr), curx + 7);
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2) << error;
+    print_and_wrap(" ]] err: " + stream.str());
+    move(getcury(stdscr), curx);
+    print_linebreak();
+}
+
+void UserInterface::print_current_volume() {
+
+    print_and_wrap("VOLUME");
+    int vol_width = 20;
+    float rel_volume = synth->volume / cfg->i(MAX_VOLUME);
+    int filled_symbols = (int) (rel_volume * vol_width);
+    int curx = getcurx(stdscr);
+    printw("[");
+    if (filled_symbols > 0) 
+        hline(ACS_BLOCK, filled_symbols);
+    move(getcury(stdscr), getcurx(stdscr) + vol_width);
+    printw("]");
+    move(getcury(stdscr)+1, curx);
+    print_linebreak();
+}
+
+void UserInterface::print_current_chords() {
+    
+    int note_idx = MusicUtil::get_nearest_note_index(synth->frequency);
+    std::string maj1 = MusicUtil::get_chord_name(note_idx, CHORD_MODE_1, CHORD_KEY_MAJOR);
+    std::string maj3 = MusicUtil::get_chord_name(note_idx, CHORD_MODE_3, CHORD_KEY_MAJOR);
+    std::string maj5 = MusicUtil::get_chord_name(note_idx, CHORD_MODE_5, CHORD_KEY_MAJOR);
+    std::string min1 = MusicUtil::get_chord_name(note_idx, CHORD_MODE_1, CHORD_KEY_MINOR);
+    std::string min3 = MusicUtil::get_chord_name(note_idx, CHORD_MODE_3, CHORD_KEY_MINOR);
+    std::string min5 = MusicUtil::get_chord_name(note_idx, CHORD_MODE_5, CHORD_KEY_MINOR);
+    std::string clear = "[" + cfg->str(ACTION_CHORD_CLEAR) + "] Clear chords";
+    print_and_wrap("CHORDS");
+    std::string currentChord = synth->get_current_chord_name();
+    int curx = getcurx(stdscr);
+    set_highlight_text(currentChord == maj1); printw(("[" + cfg->str(ACTION_CHORD_MAJOR_1) + "] " + maj1).c_str());
+    move(getcury(stdscr), curx+8);
+    set_highlight_text(currentChord == maj3); printw(("[" + cfg->str(ACTION_CHORD_MAJOR_3) + "] " + maj3).c_str());
+    move(getcury(stdscr), curx+16);
+    set_highlight_text(currentChord == maj5); printw(("[" + cfg->str(ACTION_CHORD_MAJOR_5) + "] " + maj5).c_str());
+    move(getcury(stdscr)+1, curx);
+    set_highlight_text(currentChord == min1); printw(("[" + cfg->str(ACTION_CHORD_MINOR_1) + "] " + min1).c_str());
+    move(getcury(stdscr), curx+8);
+    set_highlight_text(currentChord == min3); printw(("[" + cfg->str(ACTION_CHORD_MINOR_3) + "] " + min3).c_str());
+    move(getcury(stdscr), curx+16);
+    set_highlight_text(currentChord == min5); printw(("[" + cfg->str(ACTION_CHORD_MINOR_5) + "] " + min5).c_str());
+    move(getcury(stdscr)+1, curx);
+    set_highlight_text(false);
+    print_and_wrap(clear);
+    print_linebreak();
+}
+
+void UserInterface::print_help_text() {
+    
+    print_and_wrap(std::string(HELP_TEXT_1) + " " + HELP_TEXT_2);
+    print_and_wrap(std::string(HELP_TEXT_3) + " " + HELP_TEXT_4);
+    print_linebreak();
+}
+
+void UserInterface::print_buttons() {
+    
+    set_highlight_text(synth->is_secondary_frequency_active());
+    print_and_wrap("[" + cfg->str(ACTION_SUSTAIN_NOTE) + "] Sustain note ");
+    set_highlight_text(synth->is_octave_offset());
+    print_and_wrap("[" + cfg->str(ACTION_OCTAVE_UP)    + "] Add octave   ");
+    set_highlight_text(synth->is_tremolo_enabled());
+    print_and_wrap("[" + cfg->str(ACTION_TREMOLO)      + "] Add tremolo  ");
+    set_highlight_text(false);
+    print_linebreak();
+    
+    print_and_wrap("["  + cfg->str(ACTION_AUTOTUNE_NONE) + "/" 
+                + cfg->str(ACTION_AUTOTUNE_SMOOTH) + "/" 
+                + cfg->str(ACTION_AUTOTUNE_FULL) + "] Autotune: " + synth->get_autotune_mode());
+    print_and_wrap("[" + cfg->str(ACTION_CHANGE_WAVEFORM) + "] Waveform: " + synth->get_waveform());
+    if (audio->is_recording()) attron(A_BLINK);
+    set_highlight_text(audio->is_replaying() || audio->is_recording());
+    print_and_wrap("[" + cfg->str(ACTION_RECORDING_REPLAYING) + "] Record / replay ");
+    attroff(A_BLINK);
+    print_linebreak();
+}
+
+void UserInterface::print_and_wrap(std::string str) {
+    int xpos = getcurx(stdscr);
+    printw(str.c_str()); move(getcury(stdscr)+1, xpos);
+}
+
+void UserInterface::print_linebreak() {
+    move(getcury(stdscr)+1, getcurx(stdscr));
+}
+
+void UserInterface::set_highlight_text(bool highlight) {
+    if (highlight)
+        attron(A_STANDOUT);
+    else
+        attroff(A_STANDOUT);
+}
+
+
+#endif
+
 /*
  * Free recources when the program is closed.
  */
 void UserInterface::clean_up() {
-    
+
+#ifdef THEREMIN_GUI
     SDL_DestroyRenderer(renderer);
+#else
+    endwin(); // End curses
+#endif
     SDL_Quit();
 }
